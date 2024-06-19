@@ -1,16 +1,15 @@
 <#
-The function performs the following tasks:
-
+    The function performs the following tasks:
     Installs the necessary RSAT (Remote Server Administration Tools) features.
     Checks if the $ShareRootFolder is null or empty, and exits if it is.
     Exports the current SMB shares to an XML file as a backup.
     Loops through each share folder and checks the NTFS permissions, prompting the user to add the domain administrators group if the local administrators group is found.
     Checks the SMB share permissions and prompts the user to remove the local administrators group and add the domain administrators group if found.
+    The function uses the Write-Log function from the Write-Log.ps1 module to log the actions taken during the permission check process.
 
-The function uses the Write-Log function from the Write-Log.ps1 module to log the actions taken during the permission check process.
-
-To use this function, you would need to import the CheckPermissions.ps1 module in your main script
-USAGE: Check-Permissions -ShareRootFolder $ShareRootFolder -LogLocation $LogLocation -DomainAdminGroup $DomainAdminGroup -LocalAdminGroup $LocalAdminGroup
+    Import-Module -Name $PSScriptRoot\Check-Permissions.ps1 -Verbose
+    And then you can call the Check-Permissions function like this:
+    Check-Permissions -ShareRootFolder $ShareRootFolder -LogLocation $LogLocation -DomainAdminGroup $DomainAdminGroup -LocalAdminGroup $LocalAdminGroup
 #>
 function Check-Permissions {
     [CmdletBinding()]
