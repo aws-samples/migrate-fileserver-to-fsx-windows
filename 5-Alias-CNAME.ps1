@@ -1,5 +1,12 @@
+<#
+This script is responsible for creating the DNS CNAME records for the provided aliases and linking them to the FSx instance's DNS name.
+It first retrieves the domain name and the DNS server computer names using the Get-CimInstance and Resolve-DnsName cmdlets.
+The script then loops through the provided aliases and checks if the corresponding CNAME record already exists. If it does, the script removes the existing record and 
+creates a new one using the Add-DnsServerResourceRecordCName cmdlet.
+The script handles any exceptions that might occur during the DNS record management process.
+#>
 #########################################################################
-# 6 # RECREATE DNS CNAME RECORD FOR ALIAS AND LINK TO FSX HOSTNAME
+## RECREATE DNS CNAME RECORD FOR ALIAS AND LINK TO FSX HOSTNAME
 #########################################################################
 
 if ($null -ne $Alias)
