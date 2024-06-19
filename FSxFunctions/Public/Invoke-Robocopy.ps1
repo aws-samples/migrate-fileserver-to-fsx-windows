@@ -1,17 +1,19 @@
-<#
-The function takes several parameters, including the $SourceFolder (an array of source folders), $FSxDriveLetter, $FSxDNSName, $LogLocation, and 
-$UseRoboCopyForDataTransfer (a boolean flag to control whether Robocopy should be used).
-The function first dot-sources the Write-Log.ps1 module to have access to the Write-Log function.
-The main logic of the function is contained within the if statement that checks the value of $UseRoboCopyForDataTransfer. 
-If it's $true, the function proceeds to mount the FSx drive and execute the Robocopy command for each source folder. 
-If $UseRoboCopyForDataTransfer is $false, the function logs a message and skips the Robocopy data transfer.
-Invoke-Robocopy -SourceFolder $SourceFolder -FSxDriveLetter $FSxDriveLetter -FSxDNSName $FSxDNSName -LogLocation $LogLocation -UseRoboCopyForDataTransfer $UseRoboCopyForDataTransfer
-#>
+function Get-FolderSize {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    $folderSize = (Get-ChildItem -Path $Path -Recurse | Measure-Object -Property Length -Sum).Sum
+    return $folderSize
+}
+
 function Invoke-Robocopy {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [string[]]$SourceFolder,
+        [string[]]$SourceFolders,
         [Parameter(Mandatory = $true)]
         [string]$FSxDriveLetter,
         [Parameter(Mandatory = $true)]
@@ -19,19 +21,75 @@ function Invoke-Robocopy {
         [Parameter(Mandatory = $true)]
         [string]$LogLocation,
         [Parameter(Mandatory = $true)]
-        [bool]$UseRoboCopyForDataTransfer
+        [int]$FSxTotalSpace,
+        [Parameter(Mandatory = $true)]
+        [int]$DedupFactor,
+        [Parameter(Mandatory = $true)]
+        [int]$MaxTransferSize,
+        [Parameter(Mandatory = $true)]
+        [bool]$DedupEnabled
     )
+
     . $PSScriptRoot\Write-Log.ps1
-    if ($UseRoboCopyForDataTransfer) 
-    {
-        # Mount FSx as a PSDrive so we can copy the file server data to FSx
-        New-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -PSProvider FileSystem -Root "\\$FSxDNSName\D$" -Persist
-        foreach ($sourceFolder in $SourceFolder) {
-            # Copy the root folder from the Source File Server to FSx D:
+
+    # Mount FSx as a PSDrive
+    New-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -PSProvider FileSystem -Root "\\$FSxDNSName\D$" -Persist
+
+    $freeSpaceOnFSx = $FSxTotalSpace
+    foreach ($sourceFolder in $SourceFolders) {
+        if ($DedupEnabled)
+        {
+            $folderSize = Get-FolderSize -Path $sourceFolder
+            $rawDataSize = $folderSize * $DedupFactor
+
+            if ($rawDataSize -le $freeSpaceOnFSx) {
+                # Copy the folder using Robocopy
+                robocopy $sourceFolder "$($FSxDriveLetter.TrimEnd(':'))\" /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$LogLocation"
+
+                # Run deduplication
+                . $PSScriptRoot\DedupFunctionRunner.ps1
+
+                $freeSpaceOnFSx -= $rawDataSize
+                Write-Host "Copied $sourceFolder. Free space on FSx: $freeSpaceOnFSx GB" -ForegroundColor Green
+            }
+            else 
+            {
+                # If the folder size exceeds the available free space, split it into smaller chunks
+                $chunkSize = [math]::Floor($freeSpaceOnFSx / $DedupFactor)
+                $chunkSize = [math]::Min($chunkSize, $MaxTransferSize)
+
+                if ($chunkSize -gt 0) 
+                {
+                    $numChunks = [math]::Ceiling($folderSize / $chunkSize)
+                    for ($i = 0; $i -lt $numChunks; $i++)
+                    {
+                        $chunkStartIndex = $i * $chunkSize
+                        $chunkEndIndex = [math]::Min(($i + 1) * $chunkSize, $folderSize)
+                        $chunkPath = "$sourceFolder\Chunk$i"
+                        New-Item -ItemType Directory -Path $chunkPath | Out-Null
+                        robocopy $sourceFolder $chunkPath /MOVE /MAXSIZE:$chunkSize /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$LogLocation"
+
+                        # Run deduplication
+                        . $PSScriptRoot\DedupFunctionRunner.ps1
+
+                        $freeSpaceOnFSx -= $chunkSize * $DedupFactor
+                        Write-Host "Copied chunk $($i+1) of $sourceFolder. Free space on FSx: $freeSpaceOnFSx GB" -ForegroundColor Green
+                    }
+                }
+                else 
+                {
+                    Write-Host "Not enough free space on FSx to copy $sourceFolder" -ForegroundColor Red
+                }
+            }
+        }
+        else 
+        {
+            # If deduplication is not enabled, copy the folder without any dedup logic
             robocopy $sourceFolder "$($FSxDriveLetter.TrimEnd(':'))\" /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$LogLocation"
+            Write-Host "Copied $sourceFolder. Free space on FSx: $freeSpaceOnFSx GB" -ForegroundColor Green
         }
     }
-    else {
-        Write-Log -Level INFO -Message "UseRoboCopyForDataTransfer is set to false, skipping Robocopy data transfer."
-    }
+
+    # Disconnect the PSDrive
+    Remove-PSDrive -Name $FSxDriveLetter.TrimEnd(':')
 }
