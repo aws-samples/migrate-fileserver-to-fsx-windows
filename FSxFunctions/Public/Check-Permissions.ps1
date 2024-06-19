@@ -26,7 +26,8 @@ function Check-Permissions {
 
     # Install Prerequisites
     Install-WindowsFeature RSAT-AD-PowerShell, RSAT-ADDS-Tools, RSAT-DNS-Server
-
+    
+    . $PSScriptRoot\Write-Log.ps1
     # Check ShareRoot not null
     if ([string]::IsNullOrEmpty($ShareRootFolder)) {
         Write-Log -Level ERROR -Message "No ShareRoot specified, please edit the variables section at the top of the script"
