@@ -1,7 +1,7 @@
 <#
 
     Import-Module -Name $PSScriptRoot\Write-Log.ps1 -Verbose
-    And then you can call the Invoke-RecreateShares function like this:
+    And then you can call the function like this:
     
     # Using the default log location
     Write-Log -Level INFO -Message "This is an informational message"
