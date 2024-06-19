@@ -29,7 +29,7 @@ Function Remove-FSxShadowCopySchedule{
         {
             Remove-FSxShadowCopySchedule -Confirm:$false
         }
-        Write-Host "Volume shadow copy schedule disabled" $DeleteVSSSchedule -ForeGroundColor Green
+        Write-Host "Volume shadow copy schedule deleted" $DeleteVSSSchedule -ForeGroundColor Green
     } 
     else {
         Write-Host "No existing shadow copy schedule found on the FSx instance." -ForeGroundColor Green
