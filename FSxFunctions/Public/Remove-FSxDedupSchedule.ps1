@@ -4,7 +4,7 @@
         [string]$DestRPSEndpoint
     )
     # Remove exising schedules
-    Write-Host "Removing all existing schedules except BackgroundOptimization" -ForegroundColor Green
+    Write-Host "Removing $ScheduleName and setting BackgroundOptimization top disabled" -ForegroundColor Green
     Try
     {
         Write-Host "Disabling BackgroundOptimization" -ForegroundColor Green
@@ -21,7 +21,7 @@
     {
        If ($_.Exception.ToString().Contains(" MSFT_DedupSchedule.Name='BackgroundOptimization")) 
         {
-            Write-Host "Deleted all except Background Optimization" -ForegroundColor Green
+            Write-Host "Deleted $ScheduleName" -ForegroundColor Green
             $Error.Clear()
         }
     }
