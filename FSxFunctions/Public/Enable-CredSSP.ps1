@@ -18,7 +18,7 @@ function Enable-CredSSP {
         [Parameter(Mandatory = $true)]
         [string]$FQDN
     )
-
+    . $PSScriptRoot\Write-Log.ps1
     try {
         Write-Log -Level INFO -Message 'Enabling CredSSP for Server'
         Enable-WSManCredSSP -Role Server -Force -ErrorAction Stop
