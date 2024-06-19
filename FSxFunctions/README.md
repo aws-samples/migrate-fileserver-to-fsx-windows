@@ -1,5 +1,7 @@
 ## PowerShell Module: FSxFunctions
 
+These PowerShell scripts are part of a module called "FSxFunctions" that provides a set of utilities for managing various aspects of an Amazon FSx for Windows File Server (FSxW) environment, such as shadow copy schedules, deduplication configurations, and deduplication job monitoring.
+
 The "FSxFunctions" PowerShell module contains the following files in the "Public" folder:
 
 ### 1. `Remove-FSxShadowCopySchedule.ps1`
@@ -31,3 +33,8 @@ The "FSxFunctions" PowerShell module contains the following files in the "Public
 - This script contains a function called `Get-FSxDedupStatus` that retrieves the current deduplication status for an FSxW endpoint.
 - The function takes two parameters: `$ScheduleType` (either "Optimization" or "GarbageCollection") and `$DestRPSEndpoint`.
 - The script retrieves the deduplication status, including the overall status, progress, and other relevant details, and returns the information as an object.
+
+### 7. `Disable-DedupConfig.ps1`
+- This script contains a function called `Disable-DedupConfig` that disables the deduplication configuration on an FSxW endpoint.
+- The function takes a single parameter, `$DestRPSEndpoint`, which is the endpoint of the FSxW instance.
+- The script disables the deduplication configuration on the remote FSxW instance.
