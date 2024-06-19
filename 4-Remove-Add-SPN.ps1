@@ -1,5 +1,13 @@
- #########################################################################
-# 4 # REMOVE SPN FROM SOURCE FILE SERVER
+<#
+This script is responsible for removing the existing Service Principal Name (SPN) from the source file server's Active Directory computer object and then,
+adding the new SPN to the FSx instance's Active Directory computer object.
+The script first loops through the provided aliases and checks if the corresponding SPN exists on the source file server's computer object. If found, it removes the SPN using the Set-AdComputer cmdlet.
+It also checks and removes the msDS-AdditionalDnsHostname attribute if it exists.
+In the second part of the script, it invokes a remote PowerShell session on the FSx instance and adds the new SPN using the SetSpn tool and the Set-AdComputer cmdlet.
+The script handles any exceptions that might occur during the SPN management process.
+#>
+#########################################################################
+# REMOVE SPN FROM SOURCE FILE SERVER
 ######################################################################### 
 # To find and delete existing DNS alias SPNs on the original file system's Active Directory computer object
 foreach ($item in $Alias){     
@@ -91,7 +99,7 @@ foreach ($item in $Alias){
 
 
 #########################################################################
-# 5 # ADD SPN TO FSX
+## ADD SPN TO FSX
 #########################################################################
 Invoke-Command -Authentication Credssp -ComputerName $FQDN -Credential $FSxAdminUserCredential -ScriptBlock {
     foreach ($item in $using:Alias){
