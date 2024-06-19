@@ -51,6 +51,19 @@ cd $FunctionsFolderPath
 Import-Module .\FSxFunctions.psm1 -Verbose
 
 # Disable Volume Shadow Schedule while we migrate
+<#
+This script contains a function called Remove-FSxShadowCopySchedule
+that deletes the volume shadow copy schedule on an Amazon FSx for Windows File Server (FSxW) endpoint.
+
+This function should not be necessary during the initial migration to FSx
+as there should not be any existing shadow copy schedules on the new FSx instance.
+However, it is included here in case you need to manage the shadow copy schedules after the migration is complete.
+
+The function takes a single parameter,$DestRPSEndpoint, which is the endpoint of the FSxW instance.
+The script first checks the current shadow copy status to see if it exists.
+If the shadow copy exists, it then deletes the schedule by invoking the Remove-FSxShadowCopySchedule cmdlet on the remote FSxW instance.
+The schedule can be easily recreated using Set-FSxShadowCopyschedule -DestRPSEndpoint $DestRPSEndpoint -DaysOfWeek Monday,Tuesday,Saturday -Time1 15:00 -Time2 17:00
+#>
 Remove-FSxShadowCopySchedule -DestRPSEndpoint $DestRPSEndpoint
 
 # Enabled Dedup with the correct settings to catch all files 
@@ -71,19 +84,12 @@ New-FSxDedupSchedule -ScheduleName $ScheduleName -ScheduleType $ScheduleType -De
 # Wait for optimize to complete and show progress bar
 <#
 The `Get-FSxDedupJob` command can be broken down as follows:
-
 1. `Get-FSxDedupJob`: This is the name of the function that retrieves information about a deduplication job running on an Amazon FSx for Windows File Server (FSxW) endpoint.
-
 2. `-IterationNumber 1`: This parameter specifies the iteration number of the deduplication job to retrieve. In this case, it's set to 1, which means the function will retrieve information about the first iteration of the job.
-
 3. `-StartTime $StartTime`: This parameter specifies the start time of the deduplication job. The `$StartTime` all variables are set at the top of this script and passed to this function.
-
 4. `-ScheduleType $ScheduleType`: This parameter specifies the type of deduplication schedule the job is running under. It can be either "Optimization" or "GarbageCollection". The `$ScheduleType`.
-
 5. `-DestRPSEndpoint $DestRPSEndpoint`: This parameter specifies the endpoint of the FSxW instance where the deduplication job is running. The `$DestRPSEndpoint` 
-
 6. `-TimeBetweenCheckingJobStatus 5`: This parameter specifies the number of seconds to wait between checking the status of the deduplication job. In this case, it's set to 5 seconds.
-
 7. `-Iterations 4`: This parameter specifies the number of iterations the function should monitor the deduplication job. In this case, it's set to 4, meaning the function will check the job status 4 times before returning the final status.
 #>
 Get-FSxDedupJob -IterationNumber 1 -StartTime $StartTime -ScheduleType $ScheduleType -DestRPSEndpoint $DestRPSEndpoint -TimeBetweenCheckingJobStatus 5 -Iterations 4
@@ -92,12 +98,10 @@ Get-FSxDedupJob -IterationNumber 1 -StartTime $StartTime -ScheduleType $Schedule
 Get-FSxDedupStatus -ScheduleType $ScheduleType -DestRPSEndpoint $DestRPSEndpoint 
 
 # Remove custom schedule now that we done using it. Does not change the default schedules and disables BackgroundOptimization schedule
-<#
-So, when you run this command, it will:
-Connect to the FSxW endpoint specified by the $DestRPSEndpoint variable.
-Locate the deduplication schedule with the name specified by the $ScheduleName variable.
-Disable and remove the specified deduplication schedule from the FSxW instance.
-#>
+# So, when you run this command, it will Connect to the FSxW endpoint specified by the $DestRPSEndpoint variable.
+# Locate the deduplication schedule with the name specified by the $ScheduleName variable.
+# Disable and remove the specified deduplication schedule from the FSxW instance.
+
 Remove-FSxDedupSchedule -DestRPSEndpoint $DestRPSEndpoint -ScheduleName $ScheduleName
 
 ######################
