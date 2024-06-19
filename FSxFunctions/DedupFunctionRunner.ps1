@@ -132,13 +132,13 @@ Get-FSxDedupStatus -ScheduleType $ScheduleType -DestRPSEndpoint $DestRPSEndpoint
 # Remove custom schedule now that we done using it. Does not change the default schedules and disables BackgroundOptimization schedule
 Remove-FSxDedupSchedule -DestRPSEndpoint $DestRPSEndpoint -ScheduleName $ScheduleName
 
-# Enable the default optimization schedule that runs every 1 hour in background 
+<# Enable the default optimization schedule that runs every 1 hour in background 
 Write-Host "Re-Enabling BackgroundOptimization" -ForegroundColor Green
 Invoke-Command -ComputerName $DestRPSEndpoint -ConfigurationName FSxRemoteAdmin -ScriptBlock `
 {
     Set-FSxDedupSchedule -Name "BackgroundOptimization" -Enabled $true
 }
-
+#>
 # Uncomment and run Disable-DedupConfig if you want to Disable Dedup Config on FSx
 #Disable-DedupConfig -DestRPSEndpoint $DestRPSEndpoint
 
