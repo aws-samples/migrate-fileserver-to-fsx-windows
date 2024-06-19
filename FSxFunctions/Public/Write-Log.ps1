@@ -1,9 +1,14 @@
 <#
-# Using the default log location
-Write-Log -Level INFO -Message "This is an informational message"
 
-# Specifying a custom log location
-Write-Log -Level ERROR -Message "This is an error message" -LogLocation "C:\Logs"
+    Import-Module -Name $PSScriptRoot\Write-Log.ps1 -Verbose
+    And then you can call the Invoke-RecreateShares function like this:
+    
+    # Using the default log location
+    Write-Log -Level INFO -Message "This is an informational message"
+    
+    # Specifying a custom log location
+    Write-Log -Level ERROR -Message "This is an error message" -LogLocation "C:\Logs"
+        
 #>
 Function Write-Log {
     [CmdletBinding()]
