@@ -1,14 +1,16 @@
 <#
-The script is designed to enable CredSSP (Credential Security Support Provider) on both the server and client sides.
-It performs the following tasks:
-Enables CredSSP on the server side using the Enable-WSManCredSSP cmdlet.
-Enables CredSSP on the client side, also using the Enable-WSManCredSSP cmdlet, and sets the trustedhosts and credSSP values in the WinRM configuration.
-Creates a new registry key HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly if it doesn't already exist, and sets the value 1 to *.
-The script uses try-catch blocks to handle any exceptions that might occur during the execution of the commands.
-It also restarts the WinRM service at the end.
-USAGE:
-$FQDN = (Resolve-DnsName $(hostname) -Type A).Name
-Enable-CredSSP -FQDN $FQDN
+    The script is designed to enable CredSSP (Credential Security Support Provider) on both the server and client sides.
+    It performs the following tasks:
+    Enables CredSSP on the server side using the Enable-WSManCredSSP cmdlet.
+    Enables CredSSP on the client side, also using the Enable-WSManCredSSP cmdlet, and sets the trustedhosts and credSSP values in the WinRM configuration.
+    Creates a new registry key HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly if it doesn't already exist, and sets the value 1 to *.
+    The script uses try-catch blocks to handle any exceptions that might occur during the execution of the commands.
+    It also restarts the WinRM service at the end.
+    Import-Module -Name $PSScriptRoot\Enable-CredSSP.ps1 -Verbose
+    And then you can call the Enable-CredSSP function like this:
+    
+    $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
+    Enable-CredSSP -FQDN $FQDN
 #>
 function Enable-CredSSP {
     [CmdletBinding()]
