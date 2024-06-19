@@ -1,5 +1,16 @@
+<#
+The script is designed to check the NTFS and SMB share permissions on the source file server.
+It first installs the necessary RSAT (Remote Server Administration Tools) features.
+It defines a Write-Log function to log messages to a log file.
+The script checks if the $ShareRootFolder variable is set and exits with an error message if it's not.
+It exports the current SMB shares to an XML file as a backup.
+The script then loops through each share folder and checks the NTFS permissions. 
+If the local administrators group is found, it prompts the user to add the domain administrators group with full control permissions.
+It also checks the SMB share permissions and prompts the user to remove the local administrators group and add the domain administrators group if found.
+The script provides clear and informative error messages and logs the actions taken.
+#>
 #########################################################################
-# 1 # CHECK LOCAL FOLDER PERMISSIONS ON SOURCE FILE SERVER
+# CHECK LOCAL FOLDER PERMISSIONS ON SOURCE FILE SERVER
 #########################################################################
 # Install Prerequisites
 Install-WindowsFeature RSAT-AD-PowerShell,RSAT-ADDS-Tools,RSAT-DNS-Server
