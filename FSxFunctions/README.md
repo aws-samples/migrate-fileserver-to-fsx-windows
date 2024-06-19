@@ -38,3 +38,8 @@ The "FSxFunctions" PowerShell module contains the following files in the "Public
 - This script contains a function called `Disable-DedupConfig` that disables the deduplication configuration on an FSxW endpoint.
 - The function takes a single parameter, `$DestRPSEndpoint`, which is the endpoint of the FSxW instance.
 - The script disables the deduplication configuration on the remote FSxW instance.
+
+### 8. `Set-FSxShadowCopyschedule.ps1`
+- This script contains a function called `Set-FSxShadowCopyschedule` that sets the volume shadow copy schedule on an FSxW endpoint.
+- The function takes several parameters, including `$DaysOfWeek`, `$Time1`, `$Time2`, and `$DestRPSEndpoint`.
+- The script enables the volume shadow copy feature if it's not already enabled, and then sets the new schedule with the specified parameters.
