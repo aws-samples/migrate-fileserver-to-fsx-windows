@@ -13,7 +13,7 @@
   And then you can call the Update-AliasAndCNAME function like this:
   Update-AliasAndCNAME -Alias $Alias -FSxDNSName $FSxDNSName -FSxAdminUserCredential $FSxAdminUserCredential
 #>
-function Update-AliasAndCNAME {
+function Set-AliasAndCNAME {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
