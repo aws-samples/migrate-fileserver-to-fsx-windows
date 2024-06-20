@@ -1,4 +1,35 @@
 <#
+.SYNOPSIS
+ Copies file data from source folders to an FSx for Windows File Server instance.
+
+.DESCRIPTION
+ This function copies file data from the source folders specified in the $SourceFolders parameter to an FSx for Windows File Server instance. It handles data transfer with or without deduplication based on the $DedupEnabled flag.
+
+.PARAMETER SourceFolders
+ An array of strings specifying the full paths to the source folder(s) to copy.
+
+.PARAMETER FSxDriveLetter 
+ A string specifying the drive letter used to mount the FSx instance (e.g. "X:").
+
+.PARAMETER FSxDNSName
+ A string specifying the DNS name of the FSx instance (e.g. "fsx.aws.domain.com"). 
+
+.PARAMETER LogLocation
+ A string specifying the path to save the Robocopy log file.
+
+.PARAMETER FSxTotalSpaceGB
+ An integer specifying the total storage capacity of the FSx instance in gigabytes (GiB).
+
+.PARAMETER DedupFactor 
+ An integer estimating the deduplication ratio (e.g. 2 means data size will reduce by 50%).
+
+.PARAMETER MaxTransferSizeGB
+ An integer specifying the maximum chunk size in GiB when splitting large folders.
+
+.PARAMETER DedupEnabled
+ A boolean indicating whether to perform data deduplication during transfer.
+
+.LOGIC EXPLAINED:
     Non-Deduplication Scenario:
     If $DedupEnabled is $false, the function simply copies the folder using Robocopy, without any deduplication-related logic.
     It does not perform any calculations or updates to the available free space on the FSx instance, as the deduplication factor is not relevant in this scenario.
