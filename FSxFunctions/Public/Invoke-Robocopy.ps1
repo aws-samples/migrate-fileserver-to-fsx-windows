@@ -43,11 +43,11 @@ function Invoke-Robocopy {
         [Parameter(Mandatory = $true)]
         [string]$LogLocation,
         [Parameter(Mandatory = $true)]
-        [int]$FSxTotalSpace,
+        [int]$FSxTotalSpaceGB,
         [Parameter(Mandatory = $true)]
         [int]$DedupFactor,
         [Parameter(Mandatory = $true)]
-        [int]$MaxTransferSize,
+        [int]$MaxTransferSizeGB,
         [Parameter(Mandatory = $true)]
         [bool]$DedupEnabled
     )
@@ -57,50 +57,44 @@ function Invoke-Robocopy {
     # Mount FSx as a PSDrive
     New-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -PSProvider FileSystem -Root "\\$FSxDNSName\D$" -Persist
 
-    $freeSpaceOnFSx = $FSxTotalSpace
+    $freeSpaceOnFSx = $FSxTotalSpaceGB
     foreach ($sourceFolder in $SourceFolders) {
         if ($DedupEnabled)
         {
-            $folderSize = Get-FolderSize -Path $sourceFolder
-            $rawDataSize = $folderSize * $DedupFactor
+            $folderSizeGB = [math]::Round((Get-FolderSize -Path $sourceFolder) / 1GB, 2)
+            $rawDataSizeGB = $folderSizeGB * $DedupFactor
 
-            if ($rawDataSize -le $freeSpaceOnFSx) {
+            if ($rawDataSizeGB -le $freeSpaceOnFSx) {
                 # Copy the folder using Robocopy
                 robocopy $sourceFolder "$($FSxDriveLetter.TrimEnd(':'))\" /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$LogLocation"
 
                 # Run deduplication
                 . $PSScriptRoot\DedupFunctionRunner.ps1
 
-                $freeSpaceOnFSx -= $rawDataSize
+                $freeSpaceOnFSx -= $rawDataSizeGB
                 Write-Host "Copied $sourceFolder. Free space on FSx: $freeSpaceOnFSx GB" -ForegroundColor Green
             }
             else 
             {
                 # If the folder size exceeds the available free space, split it into smaller chunks
-                $chunkSize = [math]::Floor($freeSpaceOnFSx / $DedupFactor)
-                $chunkSize = [math]::Min($chunkSize, $MaxTransferSize)
+                $chunkSizeGB = [math]::Floor($freeSpaceOnFSx / $DedupFactor)
+                $chunkSizeGB = [math]::Min($chunkSizeGB, $MaxTransferSizeGB)
 
-                if ($chunkSize -gt 0) 
+                if ($chunkSizeGB -gt 0) 
                 {
-                    $numChunks = [math]::Ceiling($folderSize / $chunkSize)
+                    $numChunks = [math]::Ceiling($folderSizeGB / $chunkSizeGB)
                     for ($i = 0; $i -lt $numChunks; $i++)
                     {
-                        $chunkStartIndex = $i * $chunkSize
-                        $chunkEndIndex = [math]::Min(($i + 1) * $chunkSize, $folderSize)
+                        $chunkStartIndex = $i * ($chunkSizeGB * 1GB)
+                        $chunkEndIndex = [math]::Min(($i + 1) * ($chunkSizeGB * 1GB), $folderSizeGB * 1GB)
                         $chunkPath = "$sourceFolder\Chunk$i"
                         New-Item -ItemType Directory -Path $chunkPath | Out-Null
-                        robocopy $sourceFolder $chunkPath /MOVE /MAXSIZE:$chunkSize /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$LogLocation"
+                        robocopy $sourceFolder $chunkPath /MOVE /MAXSIZE:$($chunkSizeGB * 1GB) /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$LogLocation"
 
                         # Run deduplication
                         . $PSScriptRoot\DedupFunctionRunner.ps1
-                        <#
-                        subtracting the raw data size from the current available free space on the FSx instance and assigning the result back to the $freeSpaceOnFSx variable.
-                        This is an important step because it keeps track of the remaining free space on the FSx, which is crucial for the script's decision-making process. 
-                        As the script copies data to the FSx instance, it needs to ensure that there is enough available space to accommodate the incoming data, especially when the data is being copied in smaller chunks due to limited free space.
-                        By updating the $freeSpaceOnFSx variable after each successful data transfer, the script can make informed decisions about whether to proceed with the next folder or to split it into smaller chunks, 
-                        ensuring that the FSx instance does not run out of space during the migration process.
-                        #> 
-                        $freeSpaceOnFSx -= $chunkSize * $DedupFactor
+                        
+                        $freeSpaceOnFSx -= $chunkSizeGB
                         Write-Host "Copied chunk $($i+1) of $sourceFolder. Free space on FSx: $freeSpaceOnFSx GB" -ForegroundColor Green
                     }
                 }
@@ -114,7 +108,6 @@ function Invoke-Robocopy {
         {
             # If deduplication is not enabled, copy the folder without any dedup logic
             robocopy $sourceFolder "$($FSxDriveLetter.TrimEnd(':'))\" /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$LogLocation"
-            Write-Host "Copied $sourceFolder. Free space on FSx: $freeSpaceOnFSx GB" -ForegroundColor Green
         }
     }
 
