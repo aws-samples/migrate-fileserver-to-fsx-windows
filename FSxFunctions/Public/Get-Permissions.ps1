@@ -15,7 +15,7 @@ function Get-Permissions {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [string]$ShareRootFolder,
+        [string[]]$ShareRootFolder,
         [Parameter(Mandatory = $true)]
         [string]$LogLocation,
         [Parameter(Mandatory = $true)]
@@ -25,8 +25,18 @@ function Get-Permissions {
     )
 
     # Install Prerequisites
-    Install-WindowsFeature RSAT-AD-PowerShell, RSAT-ADDS-Tools, RSAT-DNS-Server
-    
+    $featuresToInstall = @(
+    "RSAT-AD-PowerShell",
+    "RSAT-ADDS-Tools",
+    "RSAT-DNS-Server"
+    )
+
+    foreach ($feature in $featuresToInstall) {
+        if (-not (Get-WindowsFeature -Name $feature | Where-Object { $_.Installed -eq $true })) {
+            Install-WindowsFeature -Name $feature
+        }
+    }
+
     . $PSScriptRoot\Write-Log.ps1
     # Check ShareRoot not null
     if ([string]::IsNullOrEmpty($ShareRootFolder)) {
