@@ -18,6 +18,11 @@
     After processing all the source folders, the function disconnects the PSDrive using the Remove-PSDrive cmdlet.
     
     The script leverages the DedupFunctionRunner.ps1 script to handle the deduplication-related tasks, keeping the Invoke-Robocopy function focused on the data transfer process.
+    The function now works exclusively with the GB unit for the FSx total space, chunk size, and data transfer operations.
+    The $folderSizeGB variable is calculated by converting the folder size from bytes to GB using the formula [math]::Round((Get-FolderSize -Path $sourceFolder) / 1GB, 2).
+    The $rawDataSizeGB variable is calculated by multiplying the folder size in GB by the $DedupFactor.
+    All comparisons and calculations involving the $freeSpaceOnFSx variable are now done in the GB unit.
+    When copying the folders, the script uses the $chunkSizeGB variable to determine the maximum size of each chunk.
 
 #>
 function Get-FolderSize {
