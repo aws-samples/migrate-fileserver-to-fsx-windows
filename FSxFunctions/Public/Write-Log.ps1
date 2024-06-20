@@ -13,17 +13,14 @@
 Function Write-Log {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$False)]
-        [ValidateSet("INFO","WARN","ERROR","FATAL","DEBUG")]
+        [Parameter(Mandatory = $False)]
+        [ValidateSet("INFO", "WARN", "ERROR", "FATAL", "DEBUG")]
         [String]
         $Level = "INFO",
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory = $True)]
         [string]
         $Message,
-        [Parameter(Mandatory=$False)]
-        [string]
-        $Logfile,
-        [Parameter(Mandatory=$False)]
+        [Parameter(Mandatory = $False)]
         [string]
         $LogLocation = "$($env:USERPROFILE)\Documents\FsxMigrate"
     )
@@ -32,14 +29,16 @@ Function Write-Log {
     $Line = "$Stamp $Level $Message"
     $Logfilepath = "$LogLocation\FsxMigrate.log"
 
+    # Create the log directory if it doesn't exist
     if (!(Test-Path $LogLocation)) {
         New-Item -ItemType Directory -Force -Path $LogLocation | Out-Null
     }
 
-    if (Test-Path $Logfilepath) {
-        Add-Content $Logfilepath -Value $Line
+    # Create the log file if it doesn't exist
+    if (!(Test-Path $Logfilepath)) {
+        New-Item -ItemType File -Force -Path $Logfilepath | Out-Null
     }
-    else {
-        Write-Output $Line
-    }
+
+    # Write the log message to the file
+    Add-Content $Logfilepath -Value $Line
 }
