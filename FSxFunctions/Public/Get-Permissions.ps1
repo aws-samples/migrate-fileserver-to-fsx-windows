@@ -68,7 +68,7 @@ function Get-Permissions {
             Write-Host "ERROR: Found local admin group on $($share.Path) please modify permissions to use domain group as local groups will not have access on FSx" -ForeGroundColor Red
             Write-Log -Level ERROR -Message "Found local admin group on $($share.Path) please modify permissions to use domain group as local groups will not have access on FSx"
             Write-Host $getAccess.IdentityReference -ForeGroundColor Green
-            Write-Log -Level ERROR -Message $getAccess.IdentityReference
+            Write-Log -Level ERROR -Message "$($getAccess.IdentityReference)"
 
             $fixPermissions = Read-Host -Prompt 'Would you like to ADD NTFS domain group permission? Insert Yes or No?'
             if ($fixPermissions -match "^(?i)y(?:es)?$") {
