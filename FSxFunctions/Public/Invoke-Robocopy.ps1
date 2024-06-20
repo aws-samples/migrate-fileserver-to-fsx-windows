@@ -1,8 +1,7 @@
 <#
-    The function starts by mounting the FSx instance as a PSDrive using the New-PSDrive cmdlet.
-    Iterate Through Source Folders:
-    The function then loops through each source folder specified in the $SourceFolders parameter.
-    
+    Non-Deduplication Scenario:
+    If $DedupEnabled is $false, the function simply copies the folder using Robocopy, without any deduplication-related logic.
+    It does not perform any calculations or updates to the available free space on the FSx instance, as the deduplication factor is not relevant in this scenario.
     Deduplication Scenario:
     If $DedupEnabled is $true, the function performs the following steps:
     Calculates the folder size using the Get-FolderSize function.
@@ -12,10 +11,9 @@
     If false, it splits the folder into smaller chunks (up to the $MaxTransferSize limit) and copies each chunk, running the deduplication tasks after each chunk.
     After each copy and deduplication operation, it subtracts the raw data size from the available free space on the FSx instance.
     
-    Non-Deduplication Scenario:
-    If $DedupEnabled is $false, the function simply copies the folder using Robocopy, without any deduplication-related logic.
-    It does not perform any calculations or updates to the available free space on the FSx instance, as the deduplication factor is not relevant in this scenario.
-    
+    The function starts by mounting the FSx instance as a PSDrive using the New-PSDrive cmdlet.
+    Iterate Through Source Folders:
+    The function then loops through each source folder specified in the $SourceFolders parameter.
     Disconnect the PSDrive:
     After processing all the source folders, the function disconnects the PSDrive using the Remove-PSDrive cmdlet.
     
