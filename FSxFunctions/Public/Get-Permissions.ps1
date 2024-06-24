@@ -9,7 +9,7 @@
 
     Import-Module -Name $PSScriptRoot\Check-Permissions.ps1 -Verbose
     And then you can call the Check-Permissions function like this:
-    Check-Permissions -ShareRootFolder $ShareRootFolder -LogLocation $LogLocation -DomainAdminGroup $DomainAdminGroup -LocalAdminGroup $LocalAdminGroup
+    Get-Permissions -ShareRootFolder $ShareRootFolder -LogLocation $LogLocation -DomainAdminGroup $DomainAdminGroup -LocalAdminGroup $LocalAdminGroup
 #>
 function Get-Permissions {
     [CmdletBinding()]
