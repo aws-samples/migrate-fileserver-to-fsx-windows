@@ -6,7 +6,7 @@ Import-Module .\FSxFunctions.psm1 -Verbose
 Enable-CredSSP -FQDN $FQDN
 
 # Check permissions on source file server
-Check-Permissions -ShareRootFolder $ShareRootFolder -LogLocation $LogLocation -DomainAdminGroup $DomainAdminGroup -LocalAdminGroup $LocalAdminGroup
+Get-Permissions -ShareRootFolder $ShareRootFolder -LogLocation $LogLocation -DomainAdminGroup $DomainAdminGroup -LocalAdminGroup $LocalAdminGroup
 
 # Copy data to FSx using Robocopy
 Invoke-Robocopy -SourceFolder $ShareRootFolder -FSxDriveLetter $FSxDriveLetter -FSxDNSName $FSxDNSName -LogLocation $LogLocation -UseRoboCopyForDataTransfer $UseRoboCopyForDataTransfer
