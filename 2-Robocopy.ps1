@@ -9,11 +9,12 @@ The Robocopy command uses various parameters to ensure a robust and efficient da
 # COPY DATA TO FSx USING ROBOCOPY
 #########################################################################
 # Mount FSx as a drive letter so we can copy the file server data to FSx 
-net use $FSxDriveLetter \\$FSxDNSName\D$
-
-# $ShareRootFolder is defined in MigrationParameters.ps1
-foreach ($SourceFolder in $ShareRootFolder){
-    # Copy the root folder from the Source File Server to FSx D:
-    robocopy $SourceFolder $FSxDriveLetter\ /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:$LogLocation
-} 
+Write-Host "Creating drive letter mapping" -ForegroundColor Green
+New-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -PSProvider FileSystem -Root "\\$FSxDNSName\D$" -Persist
+    # If $ShareRootFolder = "C:\share1","D:\" The script will loop through each top level folder "C:\share1","D:\" and use robocopy to copy all subfolders located inside share1 and D:\
+    # Default log location is C:\RoboCopy.log
+    $logFilePath = Join-Path -Path $LogLocation -ChildPath "Robocopy.log"
+    foreach ($SourceFolder in $ShareRootFolder){
+        robocopy $SourceFolder $FSxDriveLetter\ /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
+    }  
 
