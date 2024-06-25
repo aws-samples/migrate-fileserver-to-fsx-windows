@@ -91,8 +91,9 @@ function Invoke-Robocopy {
     . $PSScriptRoot\Write-Log.ps1
 
     # Mount FSx as a PSDrive
+    Write-Host "Creating drive letter mapping" -ForegroundColor Green
     New-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -PSProvider FileSystem -Root "\\$FSxDNSName\D$" -Persist
-
+    $logFilePath = Join-Path -Path $LogLocation -ChildPath "Robocopy.log"
     $freeSpaceOnFSx = $FSxTotalSpaceGB
     foreach ($sourceFolder in $SourceFolders) {
         if ($DedupEnabled)
@@ -102,7 +103,7 @@ function Invoke-Robocopy {
 
             if ($rawDataSizeGB -le $freeSpaceOnFSx) {
                 # Copy the folder using Robocopy
-                robocopy $sourceFolder "$($FSxDriveLetter.TrimEnd(':'))\" /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$LogLocation"
+                robocopy $sourceFolder "$($FSxDriveLetter.TrimEnd(':'))\" /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
 
                 # Run deduplication
                 . $PSScriptRoot\DedupFunctionRunner.ps1
