@@ -43,9 +43,8 @@ $DomainAdminGroup = "MYTESTDOMAIN\AWS Delegated Administrators"
 # $ShareRootFolder can be one or more locations, each location must be enclosed in double quotes "", for example if you have two locations use this format: "C:\share1","D:\" 
 $ShareRootFolder = "C:\share1","D:\" 
 
-# If $UseRoboCopyForDataTransfer is set to true, the script will use robocopy to loop through each top level folder and copy all subfolders.
+# If $ShareRootFolder = "C:\share1","D:\" The script will loop through each top level folder "C:\share1","D:\" and use robocopy to copy all subfolders located inside share1 and D:\
 # https://andys-tech.blog/2020/07/robocopy-is-mt-with-more-threads-faster/ 
-$UseRoboCopyForDataTransfer = $true
 
 # Getting Hostname of file server - no need to edit this
 $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
