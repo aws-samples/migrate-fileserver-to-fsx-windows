@@ -10,7 +10,12 @@ This centralized parameter file makes it easier to manage the migration settings
 ###############################
 # This will prompt for Credentials that have permission to create new shares on FSx, and access all folders on source files server, usually a user that is part of Domain Admins, File server admins or 
 # AWS FSx delegated administrators if using AWS managed AD
-$FSxAdminUserCredential = Get-Credential 
+if (-not $FSxAdminUserCredential -or $FSxAdminUserCredential.Password.Length -eq 0) {
+    $FSxAdminUserCredential = Get-Credential -Message "Enter the credentials for the FSx administrator user"
+}
+elseif ($FSxAdminUserCredential.Password.Length -eq 0) {
+    $FSxAdminUserCredential = [pscredential]::new($FSxAdminUserCredential.UserName, (ConvertTo-SecureString "password" -AsPlainText -Force))
+} 
 
 # The DNS name of your destination FSx for Windows file system. amznfsxhkxyen.corp.example.com
 $FSxDNSName = "amznfsxhkxahsen.mytestdomain.local"
