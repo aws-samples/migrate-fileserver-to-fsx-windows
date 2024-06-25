@@ -102,13 +102,28 @@ foreach ($item in $Alias){
 ## ADD SPN TO FSX
 #########################################################################
 Invoke-Command -Authentication Credssp -ComputerName $FQDN -Credential $FSxAdminUserCredential -ScriptBlock {
-    foreach ($item in $using:Alias){
-         ## Set SPNs for FSx file system AD computer object
-        $FileSystemHost = (Resolve-DnsName $Using:FSxDnsName | Where Type -eq 'A')[0].Name.Split(".")[0]
-        $FSxAdComputer = (Get-AdComputer -Identity $FileSystemHost)
-        Set-AdComputer -Identity $FSxAdComputer -Add @{"msDS-AdditionalDnsHostname"="$item"}
-        SetSpn /S ("HOST/" + $item.Split('.')[0]) $FSxAdComputer.Name
-        SetSpn /S ("HOST/" + $item) $FSxAdComputer.Name
+    foreach ($item in $using:Alias) {
+        ## Set SPNs for FSx file system AD computer object
+        $FileSystemHost = (Resolve-DnsName $Using:FSxDnsName | Where-Object Type -eq 'A')[0].Name.Split(".")[0]
+        Write-Output "FileSystemHost: $FileSystemHost"
+
+        $FSxAdComputer = Get-ADComputer -Identity $FileSystemHost
+        Write-Output "FSxAdComputer: $FSxAdComputer"
+
+        $FSxDomainName = $FSxAdComputer.DistinguishedName -replace "^.*?DC=",""
+        $FSxDomainName = $FSxDomainName -replace ",DC=","."
+        Write-Output "FSxDomainName: $FSxDomainName"
+
+        # Check if the alias matches the domain name of the file server
+        if ($item.EndsWith(".$FSxDomainName")) {
+            Write-Output "Alias $item matches the domain name of the file server ($FSxDomainName)"
+            Set-ADObject -Identity $FSxAdComputer -Add @{"msDS-AdditionalDnsHostname"="$item"}
+            setspn -S "HOST/$($item.Split('.')[0])" $FSxAdComputer.Name
+            setspn -S "HOST/$item" $FSxAdComputer.Name
+        }
+        else {
+            Write-Output "Alias $item does not match the domain name of the file server ($FSxDomainName). Skipping SPN setup."
+        }
     }
 }
 
