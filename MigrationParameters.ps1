@@ -13,9 +13,6 @@ This centralized parameter file makes it easier to manage the migration settings
 if (-not $FSxAdminUserCredential -or $FSxAdminUserCredential.Password.Length -eq 0) {
     $FSxAdminUserCredential = Get-Credential -Message "Enter the credentials for the FSx administrator user"
 }
-elseif ($FSxAdminUserCredential.Password.Length -eq 0) {
-    $FSxAdminUserCredential = [pscredential]::new($FSxAdminUserCredential.UserName, (ConvertTo-SecureString "password" -AsPlainText -Force))
-} 
 
 # The DNS name of your destination FSx for Windows file system. amznfsxhkxyen.corp.example.com
 $FSxDNSName = "amznfsxhkxahsen.mytestdomain.local"
