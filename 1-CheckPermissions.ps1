@@ -53,7 +53,7 @@ if ($null -eq $ShareRootFolder -or "" -eq $ShareRootFolder ){
 # Output share info to XML as a backup and to recreate shares later
 $ShareFolder= Get-SmbShare -Special $false | ? {$_.Name -cnotmatch '^(ADMIN|IPC|PRINT|[A-Z])\$' }
 if (Test-path $LogLocation\SmbShares.xml){
-    $Now = (Get-Date).ToString("MMddyyhhmm")
+    $Now = (Get-Date).ToString("MMddyyhhmmss")
     Rename-Item -Path $LogLocation\SmbShares.xml -NewName $Now-oldSmbShares.xml
     
 }
