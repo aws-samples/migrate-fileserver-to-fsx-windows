@@ -91,3 +91,39 @@ Function Write-Log {
     # Write the log message to the file
     Add-Content $Logfilepath -Value $Line
 }
+
+# Define the required variables
+$requiredVars = @(
+    "FSxDNSName",
+    "FSxDriveLetter",
+    "FSxDestRPSEndpoint",
+    "LogLocation",
+    "LocalAdminGroup",
+    "DomainAdminGroup",
+    "ShareRootFolder"
+)
+
+# Function to verify the variables
+function Verify-Variables {
+    $allVariablesSet = $true
+
+    # Check each required variable
+    foreach ($var in $requiredVars) {
+        if (-not (Get-Variable -Name $var -ErrorAction SilentlyContinue)) {
+            Write-Host "Variable '$var' is not set." -ForegroundColor Red
+            $allVariablesSet = $false
+        }
+    }
+
+    if ($allVariablesSet) {
+        Write-Host "All required variables are set." -ForegroundColor Green
+    } else {
+        Write-Host "One or more required variables are not set." -ForegroundColor Red
+    }
+
+    return $allVariablesSet
+}
+
+# Call the Verify-Variables function
+$allVariablesSet = Verify-Variables
+
