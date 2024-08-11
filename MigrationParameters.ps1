@@ -38,8 +38,9 @@ $DomainName = (Get-CimInstance -Class Win32_ComputerSystem -ComputerName $env:co
 $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 
 # Retrieve the Amazon FSx file system details
-try {
+try {  
     $FileSystemId = Read-Host -Prompt "Enter the Amazon FSx file system Id"
+    Write-Host "Getting values for FSx automatically. Please wait" -ForegroundColor Yellow
     $FSxFileSystem = Get-FsxFileSystem -FileSystemId $FileSystemId -ErrorAction Stop
     
     # Get the DNS name of the Amazon FSx file system
