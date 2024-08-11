@@ -176,4 +176,5 @@ foreach ($share in $smbShares) {
 $topLevelFoldersArray = @($topLevelFolders)
 
 # Display the list of top-level folders
+Write-Host "Please check that your ShareRootFolder variable has been set and includes all the shared folders, currently it is set to $ShareRootFolder and we found the following folders using the Get-SMBShare command" -ForegroundColor Green
 Write-Host $topLevelFoldersArray -ForegroundColor Green
