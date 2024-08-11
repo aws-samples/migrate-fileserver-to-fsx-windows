@@ -32,15 +32,12 @@ foreach ($SourceFolder in $ShareRootFolder)
     # Get the $SourceFolder folder name
     foreach ($Share in $GetShares) {
         if ($SourceFolder.StartsWith($Share.Path)) {
-            Write-Host "SourceFolder $SourceFolder is shared on the network" -ForegroundColor Green
             $FolderPath = $SourceFolder
             $FolderName = Split-Path -Path $FolderPath -Leaf
-            Write-Host "The top level folder name to be created with robocopy is $FolderName" -ForegroundColor Green
             break
         }
     }
     # Copy top level folder and sub folders to FSx
-    Write-Host "Copying shared top-level folder: $SourceFolder" -ForegroundColor Green
     robocopy $SourceFolder $FSxDriveLetter\$FolderName /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
 
 } 
