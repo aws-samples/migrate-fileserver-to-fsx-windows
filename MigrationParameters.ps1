@@ -1,19 +1,19 @@
 ###############################
 # EDIT THE FOLLOWING VARIABLES:
 ###############################
-
+$DomainName = (Get-CimInstance -Class Win32_ComputerSystem -ComputerName $env:computername).Domain
 # The DNS name of your destination FSx for Windows file system. amznfsxhkxyen.corp.example.com
-$FSxDNSName = "amznfsxhkxahsen.mytestdomain.local"
+$FSxDNSName = ""
 
 # Drive letter will be used to mount FSx on this file server
 $FSxDriveLetter = "Z:" 
 
 # The FQDN of the endpoint “amznfsxzzzzzzzz.corp.example.com“ Amazon FSx CLI for remote management on PowerShell enables file system administration for users in the file system administrators group
-$FSxDestRPSEndpoint = "amznfsx5gxfqmhi.mytestdomain.local"
+$FSxDestRPSEndpoint = ""
 
 # Alias uses a CNAME record to make things easiier for clients to remember i.e. \\fs1.mytestdomain.local instead of \\EC2AMAZ43567.mytestdomain.local
 # Can be comma separated list enclosed in "fs1.dom.local","fs2.dom.local"
-$Alias = "fs1.mytestdomain.local" # must be in FQDN format and not the hostname of source file server
+$Alias = "fs1.$DomainName" # must be in FQDN format and not the hostname of source file server
 
 $LogLocation = "C:" # Log file and share config export location, do not include the \ if C:\ just put C:
 
