@@ -1,13 +1,6 @@
- 
-
 ###############################
 # EDIT THE FOLLOWING VARIABLES:
 ###############################
-# This will prompt for Credentials that have permission to create new shares on FSx, and access all folders on source files server, usually a user that is part of Domain Admins, File server admins or 
-# AWS FSx delegated administrators if using AWS managed AD
-if (-not $FSxAdminUserCredential -or $FSxAdminUserCredential.Password.Length -eq 0) {
-    $FSxAdminUserCredential = Get-Credential -Message "Enter the credentials for the FSx administrator user"
-}
 
 # The DNS name of your destination FSx for Windows file system. amznfsxhkxyen.corp.example.com
 $FSxDNSName = "amznfsxhkxahsen.mytestdomain.local"
@@ -35,7 +28,7 @@ $DomainAdminGroup = "AWS Delegated Administrators"
 # $ShareRootFolder can be one or more locations, each location must be enclosed in double quotes "", for example if you have two locations use this format: "C:\share1","D:\" 
 $ShareRootFolder = "C:\share1","D:\" 
 
-# If $ShareRootFolder = "C:\share1","D:\" The script will loop through each top level folder "C:\share1","D:\" and use robocopy to copy all subfolders located inside share1 and D:\
+# If $ShareRootFolder = "C:\share1","D:\" The script will robocopy top level folder "C:\share1","D:\" and all subfolders located inside share1 and D:\
 # https://andys-tech.blog/2020/07/robocopy-is-mt-with-more-threads-faster/ 
 
 # Getting Hostname of file server - no need to edit this
@@ -44,6 +37,13 @@ $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 #####################################################
 # DO NOT EDIT AFTER THIS LINE
 #####################################################
+
+# This will prompt for Credentials that have permission to create new shares on FSx, and access all folders on source files server, usually a user that is part of Domain Admins, File server admins or 
+# AWS FSx delegated administrators if using AWS managed AD
+if (-not $FSxAdminUserCredential -or $FSxAdminUserCredential.Password.Length -eq 0) {
+    $FSxAdminUserCredential = Get-Credential -Message "Enter the credentials for the FSx administrator user"
+}
+
 # Generic Log function
 <#
 
