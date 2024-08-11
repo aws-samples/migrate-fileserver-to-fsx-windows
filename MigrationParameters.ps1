@@ -1,7 +1,7 @@
 ###############################
 # EDIT THE FOLLOWING VARIABLES:
 ###############################
-$DomainName = (Get-CimInstance -Class Win32_ComputerSystem -ComputerName $env:computername).Domain
+
 $FSxDriveLetter = Read-Host -Prompt "Enter the drive letter to use for the Amazon FSx file system (Default: Z:)"
 if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
     $FSxDriveLetter = "Z:"
@@ -22,7 +22,7 @@ if ([string]::IsNullOrEmpty($DomainAdminGroup)) {
     $DomainAdminGroup = "AWS Delegated Administrators"
 }
 
-$ShareRootFolder = Read-Host -Prompt "Enter the share root folder(s) (Default: C:\share1,D:\)"
+$ShareRootFolder = Read-Host -Prompt "Enter the share root folder(s) (Default: C:\share1,D:\) including quotes"
 if ([string]::IsNullOrEmpty($ShareRootFolder)) {
     $ShareRootFolder = "C:\share1","D:\"
 }
@@ -30,16 +30,17 @@ if ([string]::IsNullOrEmpty($ShareRootFolder)) {
 # If $ShareRootFolder = "C:\share1","D:\" The script will robocopy top level folder "C:\share1","D:\" and all subfolders located inside share1 and D:\
 # https://andys-tech.blog/2020/07/robocopy-is-mt-with-more-threads-faster/ 
 
-# Getting Hostname of file server - no need to edit this
-$FQDN = (Resolve-DnsName $(hostname) -Type A).Name
-
 ###############################
 # RETRIEVE VALUES AUTOMATICALLY
 ###############################
+$DomainName = (Get-CimInstance -Class Win32_ComputerSystem -ComputerName $env:computername).Domain
+# Getting Hostname of file server - no need to edit this
+$FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 
 # Retrieve the Amazon FSx file system details
 try {
-    $FSxFileSystem = Get-FsxFileSystem -FileSystemId "<your-file-system-id>" -ErrorAction Stop
+    $FileSystemId = Read-Host -Prompt "Enter the Amazon FSx file system Id
+    $FSxFileSystem = Get-FsxFileSystem -FileSystemId $FileSystemId -ErrorAction Stop
     
     # Get the DNS name of the Amazon FSx file system
     $FSxDNSName = $FSxFileSystem.DNSName
