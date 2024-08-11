@@ -46,6 +46,9 @@ $ShareRootFolder = "C:\share1","D:\"
 # Getting Hostname of file server - no need to edit this
 $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 
+#####################################################
+# DO NOT EDIT AFTER THIS LINE
+#####################################################
 # Generic Log function
 <#
 
@@ -142,3 +145,35 @@ catch {
     Write-Host "An error occurred while validating the domain group: $ErrorMessage" -ForegroundColor Red
     exit 1
 }
+# Check if any folders might be listed as shares but are left behind or not included in the 
+ $smbShares = Get-SMBShare
+
+# Create a HashSet to store the unique top-level folders
+$topLevelFolders = New-Object System.Collections.Generic.HashSet[string]
+
+foreach ($share in $smbShares) {
+    # Ignore shares ending with a $ sign
+    if ($share.Name -notlike "*$") {
+        $path = $share.Path
+        
+        # Split the path into its components
+        $pathParts = $path.Split('\')
+        
+        # Check if the path has more than one part (i.e., it's not just a drive letter)
+        if ($pathParts.Count -gt 1) {
+            # Construct the top-level folder path
+            $topLevelFolder = "$($pathParts[0])\$($pathParts[1])"
+            $topLevelFolders.Add($topLevelFolder) | Out-Null
+        }
+        else {
+            # If the path is just a drive letter, add it to the HashSet
+            $topLevelFolders.Add($pathParts[0]) | Out-Null
+        }
+    }
+}
+
+# Convert the HashSet to an array
+$topLevelFoldersArray = @($topLevelFolders)
+
+# Display the list of top-level folders
+Write-Host $topLevelFoldersArray -ForegroundColor Green
