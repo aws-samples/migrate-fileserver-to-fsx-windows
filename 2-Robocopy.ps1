@@ -16,28 +16,31 @@
     /LOG+: Appends the Robocopy log to the specified file.
 
 #>
-#########################################################################
-# COPY DATA TO FSx USING ROBOCOPY
-#########################################################################
+# Map drive letter
 Write-Host "Creating drive letter mapping" -ForegroundColor Green
 New-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -PSProvider FileSystem -Root "\\$FSxDNSName\D$" -Persist
 
 # Default log location is C:\RoboCopy.log
 $logFilePath = Join-Path -Path $LogLocation -ChildPath "Robocopy.log"
 
+# Get all SMB shares
+$GetShares = Get-SmbShare
+
 # $ShareRootFolder is an array of strings
-foreach ($SourceFolder in $ShareRootFolder) {
-    # Check if the $SourceFolder is shared on the network
-    $isShared = Get-SmbShare -Path $SourceFolder -ErrorAction SilentlyContinue
-    if ($isShared) {
-        # Top-level folder is shared on the network, copy the entire folder structure
-        # By removing the trailing backslash from the destination path ($FSxDriveLetter), the Robocopy command will copy the entire $SourceFolder directory structure, 
-        # including the top-level folder, to the specified destination.
-        Write-Host "Copying shared top-level folder: $SourceFolder" -ForegroundColor Green
-        robocopy $SourceFolder $FSxDriveLetter /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
-    } else {
-        # Top-level folder is not shared on the network, copy the subfolders only
-        Write-Host "Copying subfolders of non-shared top-level folder: $SourceFolder" -ForegroundColor Green
-        robocopy $SourceFolder $FSxDriveLetter\ /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
+foreach ($SourceFolder in $ShareRootFolder) 
+{
+    # Get the $SourceFolder folder name
+    foreach ($Share in $GetShares) {
+        if ($SourceFolder.StartsWith($Share.Path)) {
+            Write-Host "SourceFolder $SourceFolder is shared on the network" -ForegroundColor Green
+            $FolderPath = $SourceFolder
+            $FolderName = Split-Path -Path $FolderPath -Leaf
+            Write-Host "The top level folder name to be created with robocopy is $FolderName" -ForegroundColor Green
+            break
+        }
     }
-}
+    # Copy top level folder and sub folders to FSx
+    Write-Host "Copying shared top-level folder: $SourceFolder" -ForegroundColor Green
+    robocopy $SourceFolder $FSxDriveLetter\$FolderName /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
+
+} 
