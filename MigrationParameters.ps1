@@ -1,9 +1,4 @@
-<#
-This file contains the configuration parameters used by the other scripts in the migration process.
-It includes variables for the FSx instance's DNS name, drive letter, FSx RemotePS endpoint, aliases, log location, domain admin group, share root folders, and the flag to use Robocopy for data transfer.
-The script also retrieves the FQDN of the source file server using the Resolve-DnsName cmdlet.
-This centralized parameter file makes it easier to manage the migration settings and ensures consistency across the various scripts.
-#>
+ 
 
 ###############################
 # EDIT THE FOLLOWING VARIABLES:
@@ -176,5 +171,16 @@ foreach ($share in $smbShares) {
 $topLevelFoldersArray = @($topLevelFolders)
 
 # Display the list of top-level folders
-Write-Host "Please check that your ShareRootFolder variable has been set and includes all the shared folders, currently it is set to $ShareRootFolder and we found the following folders using the Get-SMBShare command" -ForegroundColor Green
-Write-Host $topLevelFoldersArray -ForegroundColor Green
+Write-Host "ShareRootFolder variable is: $ShareRootFolder" -ForegroundColor Green
+Write-Host "The Get-SMBShare list shows: $topLevelFoldersArray " -ForegroundColor Green
+
+# Get the total number of top-level folders
+$topLevelFolderCount = $topLevelFoldersArray.Count
+$CountShareRoot = $ShareRootFolder.Count
+
+if ($topLevelFolderCount -eq $CountShareRoot) {
+    Write-Host "The number of top-level folders matches the total number of ShareRootFolders." -ForegroundColor Green
+}
+else {
+    Write-Host "The number of top-level folders is $topLevelFolderCount and does not match the total number of ShareRootFolders which is $CountShareRoot."
+}
