@@ -1,19 +1,41 @@
 <#
-    The script is designed to copy data from the source file server to the FSx (Amazon FSx for Windows File Server) instance using the Robocopy tool.
-    It maps the FSx drive letter and then copies the data from the $ShareRootFolder to the FSx drive using the Robocopy command.
-    The Robocopy command uses various parameters to ensure a robust and efficient data transfer, such as copy:DATSOU to copy data, timestamps, and security, /secfix to fix security,
-    /e to copy subdirectories, /b to copy files in Backup mode, /MT:32 to use 32 multithreaded copies, 
-    /XD to exclude specific directories, and /V /TEE /LOG+ to provide verbose output, display progress, and append the log to a file.
+    Mapping the FSx drive letter:
+        The script uses the New-PSDrive cmdlet to map the FSx drive letter, making it accessible from the PowerShell session.
+        The drive letter is specified by the $FSxDriveLetter variable, and the root of the drive is set to "\$FSxDNSName\D$".
+        The -Persist parameter is used to make the drive letter mapping persistent across PowerShell sessions.
 
-    /copy:DATSOU: Copies data, attributes, timestamps, and security.
-    /secfix: Fixes file and directory security on all copied files.
-    /e: Copies subdirectories, including empty ones.
-    /b: Copies files in Backup mode.
-    /MT:32: Uses 32 multithreaded copies.
-    /XD: Excludes specific directories, in this case, '$RECYCLE.BIN' and 'System Volume Information'.
-    /V: Provides verbose output.
-    /TEE: Displays the Robocopy output to the console.
-    /LOG+: Appends the Robocopy log to the specified file.
+    Setting the log file path:
+        The script sets the log file path for the Robocopy operation, which will be used to record the progress and details of the data transfer.
+        The log file path is constructed by joining the $LogLocation variable and the filename "Robocopy.log".
+
+    Iterating through the share root folders:
+        The script loops through the $ShareRootFolder array, which contains the root folders to be copied.
+
+    Checking for valid root locations:
+        For each $Location in the $ShareRootFolder array that is an entire drive letter, the script checks if it is a valid root location (D:, E:, ..., Z:).
+        It does this by checking if the $Location is in the $validLocations array.
+        If the $Location is a valid root location, the script proceeds to copy the data using the Robocopy command.
+        robocopy D:\ Z:\(FSxDriveLetter)
+
+    Copying data for valid root locations:
+        If the $Location is a valid root location, the script runs the Robocopy command with the following parameters:
+            /copy:DATSOU: Copies data, attributes, timestamps, and security.
+            /secfix: Fixes file and directory security on all copied files.
+            /e: Copies subdirectories, including empty ones.
+            /b: Copies files in Backup mode.
+            /MT:32: Uses 32 multithreaded copies.
+            /XD: Excludes the '$RECYCLE.BIN' and 'System Volume Information' directories.
+            /V: Provides verbose output.
+            /TEE: Displays the Robocopy output to the console.
+            /LOG+: Appends the Robocopy log to the specified file.
+
+    Handling subfolders:
+        If the $Location is not a valid root location, the script assumes it is a subfolder and follows a different workflow.
+        It sets the $SourcePath and $FolderName variables based on the $Location.
+        It then checks if the $Location is a valid directory using the Test-Path cmdlet.
+        If the $Location is a valid directory, the script runs the Robocopy command with the same parameters as in the valid root location workflow, but using the $SourcePath and $DestPath variables.
+        If the $Location is not a valid directory, the script prints a warning message.
+
 
 #>
  
