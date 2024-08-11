@@ -35,7 +35,7 @@ $LogLocation = "C:" # Log file and share config export location, do not include 
 $LocalAdminGroup = "BUILTIN\Administrators"
 
 # Replace with the Name of your domain administrators group AWS Managed AD is "AWS Delegated Administrators" and Self Managed is "Domain Admins" 
-$DomainAdminGroup = "MYTESTDOMAIN\AWS Delegated Administrators" 
+$DomainAdminGroup = "AWS Delegated Administrators" 
 
 # $ShareRootFolder can be one or more locations, each location must be enclosed in double quotes "", for example if you have two locations use this format: "C:\share1","D:\" 
 $ShareRootFolder = "C:\share1","D:\" 
