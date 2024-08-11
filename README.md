@@ -10,33 +10,37 @@ Overview
     Checking the NTFS and SMB share permissions on the source file server and addressing any issues.
     Copying the data from the source file server to the FSx instance using Robocopy.
     Recreating the file shares on the FSx instance using PowerShell remoting.
-    Removing the existing Service Principal Names (SPNs) from the source file server's Active Directory computer object and adding the new SPNs to the FSx instance's computer object.
-    Recreating the DNS CNAME records for the file server aliases and linking them to the FSx instance's DNS name.
+    (Optional) Removing the existing Service Principal Names (SPNs) from the source file server's Active Directory computer object and adding the new SPNs to the FSx instance's computer object.
+    (Optional) Recreating the DNS CNAME records for the file server aliases and linking them to the FSx instance's DNS name.
     Disabling the CredSSP configuration after the migration is complete.
 
 ## Prerequisites
 
-    PowerShell 5.1 or later
-    Active Directory module for PowerShell
-    Appropriate permissions to manage file shares, Active Directory objects, and DNS records
+PowerShell 5.1 or later
+Active Directory module for PowerShell
+Appropriate permissions to manage file shares, Active Directory objects, and DNS records
 
 ## Usage
 
-    Clone the repository to your local machine. Alternatively download as a zip file.
-    Review and update the configuration parameters in the MigrationParameters.ps1 file.
-    Run the scripts in the following order:
-        0-Enable-CredSSP.ps1
-        1-CheckPermissions.ps1
-        2-Robocopy.ps1
-        3-RecreateShares.ps1
-        4-Remove-Add-SPN.ps1
-        5-Alias-CNAME.ps1
-        6-Disable-CredSSP.ps1
+Clone the repository to your local machine. Alternatively download as a zip file.
+Review and update the configuration parameters in the MigrationParameters.ps1 file.
+
+Dot Source the MigrationParameters.ps1 file to load all the values into memory:
+
+` . .\MigrationParameters.ps1 `
+
+Run the scripts in the following order:
+1. ` .\0-Enable-CredSSP.ps1 `
+1. ` .\1-CheckPermissions.ps1 `
+1. ` .\2-Robocopy.ps1 `
+1. ` .\3-RecreateShares.ps1 `
+1. ` .\4-Remove-Add-SPN.ps1 `
+1. ` .\5-Alias-CNAME.ps1 `
+1. ` .\6-Disable-CredSSP.ps1 `
 
 ## Logging and Troubleshooting
 
 The scripts use a central log file located at the path specified in the $LogLocation variable. This log file can be used for troubleshooting and reviewing the actions taken during the migration process.
-
 If any issues arise during the migration, refer to the log file and the error messages displayed in the console for more information.
 
 ## Disclaimer
