@@ -26,32 +26,29 @@ $logFilePath = Join-Path -Path $LogLocation -ChildPath "Robocopy.log"
 
 foreach ($Location in $ShareRootFolder){
     $validLocations = @("D:\", "E:\", "F:\", "G:\", "H:\", "I:\", "J:\", "K:\", "L:\", "M:\", "N:\", "O:\", "P:\", "Q:\", "R:\", "S:\", "T:\", "U:\", "V:\", "W:\", "X:\", "Y:\", "Z:\")
-    Write-Output "Location is $Location"
+    Write-Output "testing if Location $Location is a valid root location"
     if ($Location -in $validLocations)
     {
-        $Root2Root = $true
+        Write-Output "Location $Location is a valid root 2 root" 
+        robocopy $Location $FSxDriveLetter /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
+    }else
+    {
+        Write-Host "Subfolder workflow" -ForegroundColor Red
+        $SourcePath = $null
+        $FolderName = Split-Path -Path $Location -Leaf
+        $DestPath = Join-Path -Path $FSxDriveLetter -ChildPath $FolderName
+    
+        # Check if the $Location is a valid directory
+        if (Test-Path -Path $Location -PathType Container)
+        {
+            $SourcePath = $Location
+            # Copy top level folder and sub folders to FSx
+            robocopy $SourcePath $DestPath /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
+        }
+        else
+        {
+            Write-Host "Could not determine source path for $Location" -ForegroundColor Red
+        }
     }
 
-}
- 
-if ($Root2Root -eq $true){
-    robocopy $SourceFolder $FSxDriveLetter /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
-}else{ 
-    # Get all SMB shares
-    $GetShares = Get-SmbShare -Special $false | ? {$_.Name -cnotmatch '^(ADMIN|IPC|PRINT|[A-Z])\$' }
-    # $ShareRootFolder is an array of strings
-    foreach ($SourceFolder in $ShareRootFolder) 
-    {
-        # Get the $SourceFolder folder name
-        foreach ($Share in $GetShares) {
-            if ($SourceFolder.StartsWith($Share.Path)) {
-                $FolderPath = $SourceFolder
-                $FolderName = Split-Path -Path $FolderPath -Leaf
-                break
-            }
-        }
-        # Copy top level folder and sub folders to FSx
-        robocopy $SourceFolder $FSxDriveLetter\$FolderName /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
-    
-    } 
 }
