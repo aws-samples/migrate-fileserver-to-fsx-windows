@@ -127,3 +127,18 @@ function Verify-Variables {
 # Call the Verify-Variables function
 $allVariablesSet = Verify-Variables
 
+# Validate the $DomainAdminGroup variable
+try {
+    $domainAdminGroupObject = Get-ADGroup -Identity $DomainAdminGroup -ErrorAction Stop
+}
+catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
+    Write-Log -Level ERROR -Message "The specified domain group '$DomainAdminGroup' was not found in Active Directory."
+    Write-Host "The specified domain group '$DomainAdminGroup' was not found in Active Directory." -ForegroundColor Red
+    exit 1
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    Write-Log -Level ERROR -Message "An error occurred while validating the domain group: $errorMessage"
+    Write-Host "An error occurred while validating the domain group: $errorMessage" -ForegroundColor Red
+    exit 1
+}
