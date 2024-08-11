@@ -25,31 +25,28 @@ $FSxAcceptedParameters = ("ContinuouslyAvailable", "Description", "ConcurrentUse
 
 ## Create shares on destination FSx
 foreach ($item in $shares) {
-            $param = @{};
-            Foreach ($property in $item.psObject.properties) {
-                if ($property.Name -In $FSxAcceptedParameters) {
-                    $param[$property.Name] = $property.Value
-                }
-            }
-         
-            
-            Try
-            {
-                $ShareName = $item.Name
-                if ($TestDestPS.Name -match $ShareName){
-                    Write-Output "Share already exists, skipping"
-                    Write-Log -Level INFO -Message "Share already exists, skipping"
-            
-                }else{
-                    Write-Output "About to create a share called $($item.Name)"
-                    Write-Log -Level INFO -Message "About to create a share called $($item.Name)"
-                    $CreateShare = Invoke-Command -ConfigurationName FSxRemoteAdmin -ComputerName $FSxDestRPSEndpoint -ErrorVariable errmsg -ScriptBlock {New-FSxSmbShare -Path D:\$Using:ShareName -Credential $Using:FSxAdminUserCredential @Using:param}
-                    Write-Output $CreateShare
-                }
-            }
-            Catch
-            {
-                Write-Log -Level ERROR -Message $_
-            }
-            
+    $param = @{};
+    Foreach ($property in $item.psObject.properties) {
+        if ($property.Name -In $FSxAcceptedParameters) {
+            $param[$property.Name] = $property.Value
+        }
+    }
+
+    Try
+    {
+        $SharePath = "D:\$($item.Path.Substring($item.Path.LastIndexOf('\') + 1))"
+        if ($TestDestPS.Name -match $item.Name){
+            Write-Output "Share already exists, skipping"
+            Write-Log -Level INFO -Message "Share already exists, skipping"
+        }else{
+            Write-Output "About to create a share called $($item.Name)"
+            Write-Log -Level INFO -Message "About to create a share called $($item.Name)"
+            $CreateShare = Invoke-Command -ConfigurationName FSxRemoteAdmin -ComputerName $FSxDestRPSEndpoint -ErrorVariable errmsg -ScriptBlock {New-FSxSmbShare -Path $Using:SharePath -Credential $Using:FSxAdminUserCredential @Using:param}
+            Write-Output $CreateShare
+        }
+    }
+    Catch
+    {
+        Write-Log -Level ERROR -Message $_
+    }
 }
