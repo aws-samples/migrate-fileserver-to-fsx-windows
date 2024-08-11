@@ -39,7 +39,7 @@ $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 
 # Retrieve the Amazon FSx file system details
 try {
-    $FileSystemId = Read-Host -Prompt "Enter the Amazon FSx file system Id
+    $FileSystemId = Read-Host -Prompt "Enter the Amazon FSx file system Id"
     $FSxFileSystem = Get-FsxFileSystem -FileSystemId $FileSystemId -ErrorAction Stop
     
     # Get the DNS name of the Amazon FSx file system
