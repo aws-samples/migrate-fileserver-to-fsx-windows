@@ -7,6 +7,15 @@ if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
     $FSxDriveLetter = "Z:"
 }
 
+#Get the current AD domain
+$Domain = Get-ADDomain
+$NetBIOS = $Domain.NetBIOSName
+
+$NetBIOS = Read-Host -Prompt "Enter the NETBIOS name, (Default: $NetBIOS )"
+if ([string]::IsNullOrEmpty($NetBIOS)) {
+    $NetBIOS = $Domain.NetBIOSName
+}
+
 $LogLocation = Read-Host -Prompt "Enter the log file location (Default: C:)"
 if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:"
