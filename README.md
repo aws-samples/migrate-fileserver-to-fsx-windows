@@ -20,14 +20,21 @@ PowerShell 5.1 or later
 Active Directory module for PowerShell
 Appropriate permissions to manage file shares, Active Directory objects, and DNS records
 
+## Note
+
+The FSx for Windows file system by default creates a demo share named "Share", if your source file server has a share folder called "Share" you would need to either manually delete the one that exists on FSx Windows first before migrating or rename the on premise share to something else.
+
 ## Usage
 
 Clone the repository to your local machine. Alternatively download as a zip file.
 Review and update the configuration parameters in the MigrationParameters.ps1 file.
 
+### Step 1:
 Dot Source the MigrationParameters.ps1 file to load all the values into memory:
 
 ` . .\MigrationParameters.ps1 `
+
+### Step 2:
 
 Run the scripts in the following order:
 1. ` .\0-Enable-CredSSP.ps1 `
