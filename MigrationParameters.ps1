@@ -80,7 +80,11 @@ catch {
         $FSxDestRPSEndpoint = $FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint
     }
 
-    $Alias = Read-Host -Prompt "Enter the alias for the file server (Default: fs1.$DomainName)"
+    
+    $Alias = Read-Host -Prompt "Enter the alias for the file server (Press enter to skip)"
+    if ([string]::IsNullOrEmpty($Alias)) {
+        $Alias = ""
+    }
     
 }
 #####################################################
