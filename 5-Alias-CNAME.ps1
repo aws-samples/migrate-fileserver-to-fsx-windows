@@ -8,8 +8,7 @@ The script handles any exceptions that might occur during the DNS record managem
 #########################################################################
 ## RECREATE DNS CNAME RECORD FOR ALIAS AND LINK TO FSX HOSTNAME
 #########################################################################
-
-if ($null -ne $Alias)
+if (![string]::IsNullOrEmpty($Alias)) {
 {
     Write-Output "Aliases found creating CNAME for $($Alias)"
 
