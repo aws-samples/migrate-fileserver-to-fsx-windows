@@ -16,9 +16,9 @@ if ([string]::IsNullOrEmpty($NetBIOS)) {
     $NetBIOS = $Domain.NetBIOSName
 }
 
-$LogLocation = Read-Host -Prompt "Enter the log file location (Default: C:)"
+$LogLocation = Read-Host -Prompt "Enter the log file location (Default: C:\Migration)"
 if ([string]::IsNullOrEmpty($LogLocation)) {
-    $LogLocation = "C:"
+    $LogLocation = "C:\Migration"
 }
 
 $LocalAdminGroup = Read-Host -Prompt "Enter the local admin group (Default: BUILTIN\Administrators)"
