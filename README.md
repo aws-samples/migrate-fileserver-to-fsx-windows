@@ -31,6 +31,8 @@ Review and update the configuration parameters in the MigrationParameters.ps1 fi
 
 ## Robocopy Folder Structure Considerations 
 
+```
+
 +--ShareRootFolder (Not shared on network)
    |
    +--Shared Subfolder 1 (Shared over SMB)
@@ -55,6 +57,7 @@ Review and update the configuration parameters in the MigrationParameters.ps1 fi
        |
        +--Unshared Sub-subfolder 2
 
+```
 ### Step 1:
 Dot Source the MigrationParameters.ps1 file to load all the values into memory:
 
