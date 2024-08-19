@@ -2,7 +2,7 @@
 # EDIT THE FOLLOWING VARIABLES:
 ###############################
 
-$FSxDriveLetter = Read-Host -Prompt "Enter the drive letter to use for the Amazon FSx file system (Default: Z:)"
+$FSxDriveLetter = (Read-Host -Prompt "Enter the drive letter to use for the Amazon FSx file system (Default: Z:)").Trim()
 if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
     $FSxDriveLetter = "Z:"
 }
@@ -11,29 +11,32 @@ if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
 $Domain = Get-ADDomain
 $NetBIOS = $Domain.NetBIOSName
 
-$NetBIOS = Read-Host -Prompt "Enter the NETBIOS name, (Default: $NetBIOS )"
+$NetBIOS = (Read-Host -Prompt "Enter the NETBIOS name, (Default: $NetBIOS )").Trim()
 if ([string]::IsNullOrEmpty($NetBIOS)) {
     $NetBIOS = $Domain.NetBIOSName
 }
 
-$LogLocation = Read-Host -Prompt "Enter the log file location (Default: C:\Migration)"
+$LogLocation = (Read-Host -Prompt "Enter the log file location (Default: C:\Migration)").Trim()
 if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:\Migration"
 }
 
-$LocalAdminGroup = Read-Host -Prompt "Enter the local admin group (Default: BUILTIN\Administrators)"
+$LocalAdminGroup = (Read-Host -Prompt "Enter the local admin group (Default: BUILTIN\Administrators)").Trim()
 if ([string]::IsNullOrEmpty($LocalAdminGroup)) {
     $LocalAdminGroup = "BUILTIN\Administrators"
 }
 
-$DomainAdminGroup = Read-Host -Prompt "Enter the domain admin group (Default: AWS Delegated Administrators)"
+$DomainAdminGroup = (Read-Host -Prompt "Enter the domain admin group (Default: AWS Delegated Administrators)").Trim()
 if ([string]::IsNullOrEmpty($DomainAdminGroup)) {
     $DomainAdminGroup = "AWS Delegated Administrators"
 }
 
-$ShareRootFolder = Read-Host -Prompt "Enter the share root folder(s) (Default: C:\share1,D:\) including quotes"
+$ShareRootFolder = (Read-Host -Prompt "Enter the share root folder(s) (Default: C:\share1,D:\) including quotes").Trim()
 if ([string]::IsNullOrEmpty($ShareRootFolder)) {
     $ShareRootFolder = "C:\share1","D:\"
+}
+else {
+    $ShareRootFolder = $ShareRootFolder -split ','
 }
 
 # If $ShareRootFolder = "C:\share1","D:\" The script will robocopy top level folder "C:\share1","D:\" and all subfolders located inside share1 and D:\
@@ -48,7 +51,7 @@ $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 
 # Retrieve the Amazon FSx file system details
 try {  
-    $FileSystemId = Read-Host -Prompt "Enter the Amazon FSx file system Id"
+    $FileSystemId = (Read-Host -Prompt "Enter the Amazon FSx file system Id").Trim()
     Write-Host "Getting values for FSx automatically. Please wait" -ForegroundColor Yellow
     $FSxFileSystem = Get-FsxFileSystem -FileSystemId $FileSystemId -ErrorAction Stop
     
@@ -70,18 +73,18 @@ catch {
     Write-Host "Unable to retrieve values automatically. Please provide the following information manually:" -ForegroundColor Yellow
 
     # Prompt the user to enter the values with default options
-    $FSxDNSName = Read-Host -Prompt "Enter the DNS name of the Amazon FSx file system (Default: $($FSxFileSystem.DNSName))"
+    $FSxDNSName = (Read-Host -Prompt "Enter the DNS name of the Amazon FSx file system (Default: $($FSxFileSystem.DNSName))").Trim()
     if ([string]::IsNullOrEmpty($FSxDNSName)) {
         $FSxDNSName = $FSxFileSystem.DNSName
     }
 
-    $FSxDestRPSEndpoint = Read-Host -Prompt "Enter the Remote PowerShell endpoint for the Amazon FSx file system (Default: $($FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint))"
+    $FSxDestRPSEndpoint = (Read-Host -Prompt "Enter the Remote PowerShell endpoint for the Amazon FSx file system (Default: $($FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint))").Trim()
     if ([string]::IsNullOrEmpty($FSxDestRPSEndpoint)) {
         $FSxDestRPSEndpoint = $FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint
     }
 
     
-    $Alias = Read-Host -Prompt "Enter the alias for the file server (Press enter to skip)"
+    $Alias = (Read-Host -Prompt "Enter the alias for the file server (Press enter to skip)").Trim()
     if ([string]::IsNullOrEmpty($Alias)) {
         $Alias = ""
     }
