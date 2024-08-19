@@ -6,7 +6,7 @@ Overview
 
 ## The migration process involves the following steps:
 
-    Enabling CredSSP (Credential Security Support Provider) on both the source file server and the FSx instance.
+    Enabling CredSSP (Credential Security Support Provider) on the source file server.
     Checking the NTFS and SMB share permissions on the source file server and addressing any issues.
     Copying the data from the source file server to the FSx instance using Robocopy.
     Recreating the file shares on the FSx instance using PowerShell remoting.
