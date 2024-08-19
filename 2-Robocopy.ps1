@@ -15,7 +15,7 @@
         For each $Location in the $ShareRootFolder array that is an entire drive letter, the script checks if it is a valid root location (D:, E:, ..., Z:).
         It does this by checking if the $Location is in the $validLocations array.
         If the $Location is a valid root location, the script proceeds to copy the data using the Robocopy command.
-        robocopy D:\ Z:\(FSxDriveLetter)
+        robocopy D:\ Z:\ (Z: being the FSxDriveLetter)
 
     Copying data for valid root locations:
         If the $Location is a valid root location, the script runs the Robocopy command with the following parameters:
