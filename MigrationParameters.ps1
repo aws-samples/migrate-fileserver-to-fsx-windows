@@ -7,15 +7,6 @@ if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
     $FSxDriveLetter = "Z:"
 }
 
-#Get the current AD domain
-$Domain = Get-ADDomain
-$NetBIOS = $Domain.NetBIOSName
-
-$NetBIOS = (Read-Host -Prompt "Enter the NETBIOS name, (Default: $NetBIOS )").Trim()
-if ([string]::IsNullOrEmpty($NetBIOS)) {
-    $NetBIOS = $Domain.NetBIOSName
-}
-
 $LogLocation = (Read-Host -Prompt "Enter the log file location (Default: C:\Migration)").Trim()
 if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:\Migration"
@@ -31,7 +22,7 @@ if ([string]::IsNullOrEmpty($DomainAdminGroup)) {
     $DomainAdminGroup = "AWS Delegated Administrators"
 }
 
-$ShareRootFolder = (Read-Host -Prompt "Enter the share root folder(s) (Default: C:\share1,D:\) including quotes").Trim()
+$ShareRootFolder = (Read-Host -Prompt "Enter the source share root folder(s) (Default: C:\share1,D:\) including quotes").Trim()
 if ([string]::IsNullOrEmpty($ShareRootFolder)) {
     $ShareRootFolder = "C:\share1","D:\"
 }
@@ -39,9 +30,16 @@ else {
     $ShareRootFolder = $ShareRootFolder -split ','
 }
 
-# If $ShareRootFolder = "C:\share1","D:\" The script will robocopy top level folder "C:\share1","D:\" and all subfolders located inside share1 and D:\
+# If $ShareRootFolder = "C:\share1","D:\" The script will robocopy top level folder "C:\share1","D:\" and all subfolders located inside share1 and D:\ from the source file server to FSx
 # https://andys-tech.blog/2020/07/robocopy-is-mt-with-more-threads-faster/ 
 
+#Get the current AD domain
+$Domain = Get-ADDomain
+$NetBIOS = $Domain.NetBIOSName
+$NetBIOS = (Read-Host -Prompt "Enter the NETBIOS name, (Default: $NetBIOS )").Trim()
+if ([string]::IsNullOrEmpty($NetBIOS)) {
+    $NetBIOS = $Domain.NetBIOSName
+}
 ###############################
 # RETRIEVE VALUES AUTOMATICALLY
 ###############################
