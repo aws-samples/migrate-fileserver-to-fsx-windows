@@ -86,7 +86,7 @@ catch {
     
     $Alias = (Read-Host -Prompt "Enter the alias for the file server (Press enter to skip)").Trim()
     if ([string]::IsNullOrEmpty($Alias)) {
-        $Alias = ""
+        $Alias = $null
     }
     
 }
