@@ -35,6 +35,11 @@ foreach ($item in $shares) {
     Try
     {
         $SharePath = "D:\$($item.Path.Substring($item.Path.LastIndexOf('\') + 1))"
+        # Construct the FSx-based share path 
+        $SharePath = "D:\$shareName"
+        # [System.IO.Path] is a .NET class that provides methods for working with file and directory paths.
+        # For example, if $item.Path is "C:\share1\Finance", then [System.IO.Path]::GetFileName($item.Path) would return "Finance" so we can recreate the share on FSx D:\Finance
+        $shareName = [System.IO.Path]::GetFileName($item.Path) 
         if ($TestDestPS.Name -match $item.Name){
             Write-Output "Share already exists, skipping"
             Write-Log -Level INFO -Message "Share already exists, skipping"
