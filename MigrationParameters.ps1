@@ -1,7 +1,6 @@
-###############################
+ ###############################
 # EDIT THE FOLLOWING VARIABLES:
 ###############################
-
 $FSxDriveLetter = (Read-Host -Prompt "Enter the drive letter to use for the Amazon FSx file system (Default: Z:)").Trim()
 if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
     $FSxDriveLetter = "Z:"
@@ -25,7 +24,7 @@ if ([string]::IsNullOrEmpty($DomainAdminGroup)) {
     $DomainAdminGroup = "AWS Delegated Administrators"
 }
 
-Write-Host 'Default source share root is: "C:\share1","D:\"' -ForeGroundColor Green
+Write-Host 'Default source share root is: "C:\share1","D:\"'
 $ShareRootFolder = (Read-Host -Prompt "Enter the source share root folder(s) comma seperated, including double quotes").Trim()
 if ([string]::IsNullOrEmpty($ShareRootFolder)) {
     $ShareRootFolder = "C:\share1","D:\"
@@ -51,12 +50,58 @@ $DomainName = (Get-CimInstance -Class Win32_ComputerSystem -ComputerName $env:co
 # Getting Hostname of file server - no need to edit this
 $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 
+# List all available AWS regions
+$AwsRegions = @(
+    "us-east-1",
+    "us-east-2",
+    "us-west-1",
+    "us-west-2",
+    "ap-east-1",
+    "ap-south-1",
+    "ap-northeast-1",
+    "ap-northeast-2",
+    "ap-northeast-3",
+    "ap-southeast-1",
+    "ap-southeast-2",
+    "ca-central-1",
+    "cn-north-1",
+    "cn-northwest-1",
+    "eu-central-1",
+    "eu-west-1",
+    "eu-west-2",
+    "eu-west-3",
+    "eu-north-1",
+    "me-south-1",
+    "sa-east-1"
+)
+Write-Host "Available AWS Regions:"
+foreach ($item in $AwsRegions) {
+    Write-Host $item -ForegroundColor Green
+}
+$Region = Read-Host -Prompt "Please enter the region (e.g., eu-west-1): "
+
+$FsxFileSystems = Get-FsxFileSystem -Region $Region
+if ($FsxFileSystems.Count -gt 1) {
+    for ($i = 0; $i -lt $FsxFileSystems.Count; $i++) {
+        Write-Host "$i. $($FsxFileSystems[$i].StorageCapacity) GB - $($FsxFileSystems[$i].StorageType) - $($FsxFileSystems[$i].FsxAdministratorsGroupName)"
+    }
+    $Selection = Read-Host -Prompt "Multiple FSx File Systems found, pick one to use (enter the number): "
+    $SelectedFsxFileSystem = $FsxFileSystems[$Selection]
+} else {
+    $SelectedFsxFileSystem = $FsxFileSystems
+}
+# Store FSx ID
+$FSxId = $SelectedFsxFileSystem.FileSystemId
+
 # Retrieve the Amazon FSx file system details
 try {  
-    $FileSystemId = (Read-Host -Prompt "Enter the Amazon FSx file system Id").Trim()
-    Write-Host "Getting values for FSx automatically. Please wait" -ForegroundColor Yellow
-    $FSxFileSystem = Get-FsxFileSystem -FileSystemId $FileSystemId -ErrorAction Stop
-    
+        $FileSystemId = (Read-Host -Prompt "Enter the Amazon FSx file system Id (Default:$FSxId").Trim()
+        if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
+            $FileSystemId = "$FSxId"
+        }
+        Write-Host "Getting values for FSx automatically. Please wait" -ForegroundColor Yellow
+        $FSxFileSystem = Get-FsxFileSystem -FileSystemId $FileSystemId -ErrorAction Stop
+        
     # Get the DNS name of the Amazon FSx file system
     $FSxDNSName = $FSxFileSystem.DNSName
     
@@ -70,6 +115,7 @@ try {
     Write-Host "FSxDNSName: $FSxDNSName"
     Write-Host "FSxDestRPSEndpoint: $FSxDestRPSEndpoint"
     Write-Host "Alias: $Alias"
+    
 }
 catch {
     Write-Host "Unable to retrieve values automatically. Please provide the following information manually:" -ForegroundColor Yellow
