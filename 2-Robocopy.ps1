@@ -1,4 +1,4 @@
-<#
+ <#
     Mapping the FSx drive letter:
         The script uses the New-PSDrive cmdlet to map the FSx drive letter, making it accessible from the PowerShell session.
         The drive letter is specified by the $FSxDriveLetter variable, and the root of the drive is set to "\$FSxDNSName\D$".
@@ -50,12 +50,14 @@ else
     Write-Host "Drive letter $FSxDriveLetter is already mapped" -ForegroundColor Yellow
 }
 
-# Check if $RoboLogFilePath is empty
+# Check if $logFilePath is empty
 if ([string]::IsNullOrWhiteSpace($RoboLogFilePath))
 {
     Write-Host "logFilePath is empty. Exiting script." -ForegroundColor Red
     exit 1
 }
+
+Write-Host "ShareRootFolder is: $ShareRootFolder" -ForegroundColor Green
 
 foreach ($Location in $ShareRootFolder){
     $ValidLocations = @("D:\", "E:\", "F:\", "G:\", "H:\", "I:\", "J:\", "K:\", "L:\", "M:\", "N:\", "O:\", "P:\", "Q:\", "R:\", "S:\", "T:\", "U:\", "V:\", "W:\", "X:\", "Y:\", "Z:\")
@@ -89,3 +91,4 @@ foreach ($Location in $ShareRootFolder){
     }
 
 }
+ 
