@@ -71,7 +71,7 @@ $RegionGroups = @{
 # Print Regions to help user input correct one
 foreach ($GroupName in $RegionGroups.Keys) {
     $Region = $RegionGroups[$GroupName]
-    Write-Host "$GroupName : $Region"
+    Write-Host "$GroupName : $Region" -ForeGroundColor Green
 }
 
 # Ask user for the region of their FSx so we can grab the FSx Id and info 
