@@ -25,7 +25,8 @@ if ([string]::IsNullOrEmpty($DomainAdminGroup)) {
     $DomainAdminGroup = "AWS Delegated Administrators"
 }
 
-$ShareRootFolder = (Read-Host -Prompt "Enter the source share root folder(s) (Default: C:\share1,D:\) including quotes").Trim()
+Write-Host 'Default source share root is: "C:\share1","D:\"' -ForeGroundColor Green
+$ShareRootFolder = (Read-Host -Prompt "Enter the source share root folder(s) comma seperated, including double quotes").Trim()
 if ([string]::IsNullOrEmpty($ShareRootFolder)) {
     $ShareRootFolder = "C:\share1","D:\"
 }
