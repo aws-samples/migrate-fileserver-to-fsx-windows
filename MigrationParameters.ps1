@@ -78,19 +78,22 @@ foreach ($GroupName in $RegionGroups.Keys) {
 $Region = Read-Host -Prompt "Please enter the region (e.g., eu-west-1) of your FSx Windows system: "
 
 # Get all filesystems in that region
-$FsxFileSystems = Get-FsxFileSystem -Region $Region
-if ($FsxFileSystems.Count -gt 1) {
-    for ($i = 0; $i -lt $FsxFileSystems.Count; $i++) {
-        Write-Host "$i. $($FsxFileSystems[$i].StorageCapacity) GB - $($FsxFileSystems[$i].StorageType) - $($FsxFileSystems[$i].FsxAdministratorsGroupName)"
-    }
-    $Selection = Read-Host -Prompt "Multiple FSx File Systems found, pick one to use (enter the number): "
-    $SelectedFsxFileSystem = $FsxFileSystems[$Selection]
-} else {
-    $SelectedFsxFileSystem = $FsxFileSystems
+$GetFileSystems = (Get-FsxFileSystem -Region $Region)
+if ($GetFileSystems -is [array]){
+    
+    for($i = 0; $i -lt $GetFileSystem.FileSystemId.count; $i++){
+        Write-Host "$($i): $($GetFileSystems.DNSName[$i]) "
+     }
+    $Selection = Read-Host -Prompt "Multiple Filesystems found, pick one to use"
+    $FilesytemId = $GetFileSystems[$Selection]
+    $GetFileSystem = (Get-FSXFileSystem -FileSystemId $FilesytemId -Region $Region)
+    $FSxId = $GetFileSystem.FileSystemId
+
+} else{
+    $FSxId = $GetFileSystems.FileSystemId
+    
 }
 
-# Store FSx ID
-$FSxId = $SelectedFsxFileSystem.FileSystemId
 
 # Retrieve the Amazon FSx file system details
 try {  
