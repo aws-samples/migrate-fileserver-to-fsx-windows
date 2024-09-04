@@ -50,7 +50,7 @@ else
     Write-Host "Drive letter $FSxDriveLetter is already mapped" -ForegroundColor Yellow
 }
 
-# Default log location is C:\RoboCopy.log
+# If $LogLocation is set to "C:\Migration", then $logFilePath will be set to "C:\Migration\Robocopy.log".
 $logFilePath = Join-Path -Path $LogLocation -ChildPath "Robocopy.log"
 
 foreach ($Location in $ShareRootFolder){
@@ -75,6 +75,7 @@ foreach ($Location in $ShareRootFolder){
         {
             $SourcePath = $Location
             # Copy top level folder and sub folders to FSx
+            Write-Host "About to run robocopy $SourcePath $DestPath" -ForegroundColor Green
             robocopy $SourcePath $DestPath /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
         }
         else
