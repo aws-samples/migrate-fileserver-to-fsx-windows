@@ -40,24 +40,34 @@
 #>
  
 # Map drive letter
-Write-Host "Creating drive letter mapping" -ForegroundColor Green
-New-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -PSProvider FileSystem -Root "\\$FSxDNSName\D$" -Persist
+if (!(Get-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -ErrorAction SilentlyContinue))
+{
+    Write-Host "Creating drive letter mapping" -ForegroundColor Green
+    New-PSDrive -Name $FSxDriveLetter.TrimEnd(':') -PSProvider FileSystem -Root "\\$FSxDNSName\D$" -Persist
+}
+else
+{
+    Write-Host "Drive letter $FSxDriveLetter is already mapped" -ForegroundColor Yellow
+}
 
 # Default log location is C:\RoboCopy.log
 $logFilePath = Join-Path -Path $LogLocation -ChildPath "Robocopy.log"
 
 foreach ($Location in $ShareRootFolder){
-    $validLocations = @("D:\", "E:\", "F:\", "G:\", "H:\", "I:\", "J:\", "K:\", "L:\", "M:\", "N:\", "O:\", "P:\", "Q:\", "R:\", "S:\", "T:\", "U:\", "V:\", "W:\", "X:\", "Y:\", "Z:\")
+    $ValidLocations = @("D:\", "E:\", "F:\", "G:\", "H:\", "I:\", "J:\", "K:\", "L:\", "M:\", "N:\", "O:\", "P:\", "Q:\", "R:\", "S:\", "T:\", "U:\", "V:\", "W:\", "X:\", "Y:\", "Z:\")
     Write-Output "testing if Location $Location is a valid root location"
-    if ($Location -in $validLocations)
+    if ($Location -in $ValidLocations)
     {
-        Write-Output "Location $Location is a valid root 2 root" 
+        Write-Host "Location $Location is a valid source location for robocopy" -ForegroundColor Green
         robocopy $Location $FSxDriveLetter /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
     }else
     {
-        Write-Host "Subfolder workflow" -ForegroundColor Red
+        Write-Host "Location $Location is not a valid source location for robocopy" -ForegroundColor Yellow
+        Write-Host "Starting Subfolder workflow" -ForegroundColor Red
         $SourcePath = $null
+        # If the $Location variable is "D:\sharefolder1". The Split-Path command extracts the last part of the path, for example "sharefolder1" and assigns that to $FolderName.
         $FolderName = Split-Path -Path $Location -Leaf
+        # Combine drive letter and the folder name to create the full destination path $FSxDriveLetter\$FolderName assign to $DestPath used by robocopy.
         $DestPath = Join-Path -Path $FSxDriveLetter -ChildPath $FolderName
     
         # Check if the $Location is a valid directory
