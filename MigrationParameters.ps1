@@ -1,4 +1,4 @@
-# This script will prompt for inputs, however you can edit the default values below:
+ # This script will prompt for inputs, however you can edit the default values below:
 $LogLocation = (Read-Host -Prompt "Enter the log file location (Default: C:\Migration)").Trim()
 if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:\Migration"
@@ -22,8 +22,9 @@ if ([string]::IsNullOrEmpty($DomainAdminGroup)) {
     $DomainAdminGroup = "AWS Delegated Administrators"
 }
 
-Write-Host 'Default source share root is: "C:\share1","D:\"'
-$ShareRootFolder = (Read-Host -Prompt "Enter the source share root folder(s) comma seperated, including double quotes").Trim()
+Write-Host 'Default source share root is: C:\share1,D:\' -ForegroundColor DarkGreen
+Write-Host "The format is: C:\share1,D:\ " -ForegroundColor Green
+$ShareRootFolder = (Read-Host -Prompt "Enter the source share root folder(s), comma seperated, do not include double quotes").Trim()
 if ([string]::IsNullOrEmpty($ShareRootFolder)) {
     $ShareRootFolder = "C:\share1","D:\"
 }
@@ -50,7 +51,7 @@ $DomainName = (Get-CimInstance -Class Win32_ComputerSystem -ComputerName $env:co
 $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 
 # List all available AWS regions
- Write-Host "Available FSxW Regions:"
+Write-Host "Available FSxW Regions:" -ForegroundColor Cyan
 $RegionGroups = @{
     "US East (Northern Virginia)" = "us-east-1"
     "US East (Ohio)" = "us-east-2"
@@ -71,7 +72,7 @@ $RegionGroups = @{
 # Print Regions to help user input correct one
 foreach ($GroupName in $RegionGroups.Keys) {
     $Region = $RegionGroups[$GroupName]
-    Write-Host "$GroupName : $Region" -ForeGroundColor Green
+    Write-Host "$GroupName : $Region" -ForegroundColor Green
 }
 
 # Ask user for the region of their FSx so we can grab the FSx Id and info 
@@ -86,37 +87,38 @@ if ($GetFileSystems -is [array]){
        
      }
     $Selection = Read-Host -Prompt "Multiple Filesystems found, pick one to use"
-    $FilesytemId = $GetFileSystems[$Selection]
+    $FilesytemId = $GetFileSystems[$Selection].FileSystemId
     $GetFileSystem = (Get-FSXFileSystem -FileSystemId $FilesytemId -Region $Region)
     $FSxId = $GetFileSystem.FileSystemId
 
 } else{
     $FSxId = $GetFileSystems.FileSystemId
     
-} 
+}
 
 # Retrieve the Amazon FSx file system details
 try {  
         $FileSystemId = (Read-Host -Prompt "Enter the Amazon FSx file system Id (Default:$FSxId").Trim()
-        if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
+        if ([string]::IsNullOrEmpty($FileSystemId)) {
             $FileSystemId = "$FSxId"
         }
         Write-Host "Getting values for FSx automatically. Please wait" -ForegroundColor Yellow
+        Write-Host "Get-FsxFileSystem -FileSystemId $FileSystemId" -ForegroundColor Yellow
         $FSxFileSystem = Get-FsxFileSystem -FileSystemId $FileSystemId -ErrorAction Stop
         
-    # Get the DNS name of the Amazon FSx file system
-    $FSxDNSName = $FSxFileSystem.DNSName
+        # Get the DNS name of the Amazon FSx file system
+        $FSxDNSName = $FSxFileSystem.DNSName
     
-    # Get the Remote PowerShell endpoint for the Amazon FSx file system
-    $FSxDestRPSEndpoint = $FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint
+        # Get the Remote PowerShell endpoint for the Amazon FSx file system
+        $FSxDestRPSEndpoint = $FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint
 
-    # Get Alias
-    $Alias = $FSxFileSystem.WindowsConfiguration.Aliases.Name
+        # Get Alias
+        $Alias = $FSxFileSystem.WindowsConfiguration.Aliases.Name
     
-    Write-Host "Values retrieved automatically:" -ForegroundColor Green
-    Write-Host "FSxDNSName: $FSxDNSName"
-    Write-Host "FSxDestRPSEndpoint: $FSxDestRPSEndpoint"
-    Write-Host "Alias: $Alias"
+        Write-Host "Values retrieved automatically:" -ForegroundColor Green
+        Write-Host "FSxDNSName: $FSxDNSName"
+        Write-Host "FSxDestRPSEndpoint: $FSxDestRPSEndpoint"
+        Write-Host "Alias: $Alias"
     
 }
 catch {
@@ -289,4 +291,4 @@ if ($topLevelFolderCount -eq $CountShareRoot) {
 }
 else {
     Write-Host "The number of top-level folders is $topLevelFolderCount and does not match the total number of ShareRootFolders which is $CountShareRoot."
-}
+} 
