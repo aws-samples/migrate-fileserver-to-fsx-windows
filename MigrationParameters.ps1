@@ -1,14 +1,12 @@
- ###############################
-# EDIT THE FOLLOWING VARIABLES:
-###############################
-$FSxDriveLetter = (Read-Host -Prompt "Enter the drive letter to use for the Amazon FSx file system (Default: Z:)").Trim()
-if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
-    $FSxDriveLetter = "Z:"
-}
-
+# This script will prompt for inputs, however you can edit the default values below:
 $LogLocation = (Read-Host -Prompt "Enter the log file location (Default: C:\Migration)").Trim()
 if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:\Migration"
+}
+
+$FSxDriveLetter = (Read-Host -Prompt "Enter the drive letter to use for the Amazon FSx file system (Default: Z:)").Trim()
+if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
+    $FSxDriveLetter = "Z:"
 }
 
 # If $LogLocation is set to "C:\Migration", then $logFilePath will be set to "C:\Migration\Robocopy.log".
@@ -36,7 +34,7 @@ else {
 # If $ShareRootFolder = "C:\share1","D:\" The script will robocopy top level folder "C:\share1","D:\" and all subfolders located inside share1 and D:\ from the source file server to FSx
 # https://andys-tech.blog/2020/07/robocopy-is-mt-with-more-threads-faster/ 
 
-#Get the current AD domain
+# Get the current AD domain
 $Domain = Get-ADDomain
 $NetBIOS = $Domain.NetBIOSName
 $NetBIOS = (Read-Host -Prompt "Enter the NETBIOS name, (Default: $NetBIOS )").Trim()
@@ -47,39 +45,39 @@ if ([string]::IsNullOrEmpty($NetBIOS)) {
 # RETRIEVE VALUES AUTOMATICALLY
 ###############################
 $DomainName = (Get-CimInstance -Class Win32_ComputerSystem -ComputerName $env:computername).Domain
+
 # Getting Hostname of file server - no need to edit this
 $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
 
 # List all available AWS regions
-$AwsRegions = @(
-    "us-east-1",
-    "us-east-2",
-    "us-west-1",
-    "us-west-2",
-    "ap-east-1",
-    "ap-south-1",
-    "ap-northeast-1",
-    "ap-northeast-2",
-    "ap-northeast-3",
-    "ap-southeast-1",
-    "ap-southeast-2",
-    "ca-central-1",
-    "cn-north-1",
-    "cn-northwest-1",
-    "eu-central-1",
-    "eu-west-1",
-    "eu-west-2",
-    "eu-west-3",
-    "eu-north-1",
-    "me-south-1",
-    "sa-east-1"
-)
-Write-Host "Available AWS Regions:"
-foreach ($item in $AwsRegions) {
-    Write-Host $item -ForegroundColor Green
+ Write-Host "Available FSxW Regions:"
+$RegionGroups = @{
+    "US East (Northern Virginia)" = "us-east-1"
+    "US East (Ohio)" = "us-east-2"
+    "US West (Northern California)" = "us-west-1"
+    "US West (Oregon)" = "us-west-2"
+    "Asia Pacific (Mumbai)" = "ap-south-1"
+    "Asia Pacific (Tokyo)" = "ap-northeast-1"
+    "Asia Pacific (Seoul)" = "ap-northeast-2"
+    "Asia Pacific (Singapore)" = "ap-southeast-1"
+    "Asia Pacific (Sydney)" = "ap-southeast-2"
+    "Europe (Frankfurt)" = "eu-central-1"
+    "Europe (Dublin)" = "eu-west-1"
+    "Europe (London)" = "eu-west-2"
+    "Europe (Paris)" = "eu-west-3"
+    "Europe (Stockholm)" = "eu-north-1"
 }
-$Region = Read-Host -Prompt "Please enter the region (e.g., eu-west-1): "
 
+# Print Regions to help user input correct one
+foreach ($GroupName in $RegionGroups.Keys) {
+    $Region = $RegionGroups[$GroupName]
+    Write-Host "$GroupName : $Region"
+}
+
+# Ask user for the region of their FSx so we can grab the FSx Id and info 
+$Region = Read-Host -Prompt "Please enter the region (e.g., eu-west-1) of your FSx Windows system: "
+
+# Get all filesystems in that region
 $FsxFileSystems = Get-FsxFileSystem -Region $Region
 if ($FsxFileSystems.Count -gt 1) {
     for ($i = 0; $i -lt $FsxFileSystems.Count; $i++) {
@@ -90,6 +88,7 @@ if ($FsxFileSystems.Count -gt 1) {
 } else {
     $SelectedFsxFileSystem = $FsxFileSystems
 }
+
 # Store FSx ID
 $FSxId = $SelectedFsxFileSystem.FileSystemId
 
