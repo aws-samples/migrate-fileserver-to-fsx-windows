@@ -12,6 +12,9 @@ if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:\Migration"
 }
 
+# If $LogLocation is set to "C:\Migration", then $logFilePath will be set to "C:\Migration\Robocopy.log".
+$RoboLogFilePath = "$LogLocation\Robocopy.log"
+
 $LocalAdminGroup = (Read-Host -Prompt "Enter the local admin group (Default: BUILTIN\Administrators)").Trim()
 if ([string]::IsNullOrEmpty($LocalAdminGroup)) {
     $LocalAdminGroup = "BUILTIN\Administrators"
