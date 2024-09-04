@@ -80,7 +80,7 @@ foreach ($Location in $ShareRootFolder){
             $SourcePath = $Location
             # Copy top level folder and sub folders to FSx
             Write-Host "About to run robocopy $SourcePath $DestPath" -ForegroundColor Green
-            robocopy $SourcePath $DestPath /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
+            robocopy $SourcePath $DestPath /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$RoboLogFilePath"
         }
         else
         {
