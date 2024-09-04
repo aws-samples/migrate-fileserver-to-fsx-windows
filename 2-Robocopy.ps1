@@ -53,6 +53,13 @@ else
 # If $LogLocation is set to "C:\Migration", then $logFilePath will be set to "C:\Migration\Robocopy.log".
 $logFilePath = Join-Path -Path $LogLocation -ChildPath "Robocopy.log"
 
+# Check if $logFilePath is empty
+if ([string]::IsNullOrWhiteSpace($logFilePath))
+{
+    Write-Host "logFilePath is empty. Exiting script." -ForegroundColor Red
+    exit 1
+}
+
 foreach ($Location in $ShareRootFolder){
     $ValidLocations = @("D:\", "E:\", "F:\", "G:\", "H:\", "I:\", "J:\", "K:\", "L:\", "M:\", "N:\", "O:\", "P:\", "Q:\", "R:\", "S:\", "T:\", "U:\", "V:\", "W:\", "X:\", "Y:\", "Z:\")
     Write-Output "testing if Location $Location is a valid root location"
