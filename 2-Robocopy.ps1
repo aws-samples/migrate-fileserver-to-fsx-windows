@@ -50,9 +50,6 @@ else
     Write-Host "Drive letter $FSxDriveLetter is already mapped" -ForegroundColor Yellow
 }
 
-# If $LogLocation is set to "C:\Migration", then $logFilePath will be set to "C:\Migration\Robocopy.log".
-$logFilePath = Join-Path -Path $LogLocation -ChildPath "Robocopy.log"
-
 # Check if $logFilePath is empty
 if ([string]::IsNullOrWhiteSpace($logFilePath))
 {
@@ -66,7 +63,7 @@ foreach ($Location in $ShareRootFolder){
     if ($Location -in $ValidLocations)
     {
         Write-Host "Location $Location is a valid source location for robocopy" -ForegroundColor Green
-        robocopy $Location $FSxDriveLetter /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$logFilePath"
+        robocopy $Location $FSxDriveLetter /copy:DATSOU /secfix /e /b /MT:32 /XD '$RECYCLE.BIN' "System Volume Information" /V /TEE /LOG+:"$RoboLogFilePath"
     }else
     {
         Write-Host "Location $Location is not a valid source location for robocopy" -ForegroundColor Yellow
