@@ -3,14 +3,13 @@ $LogLocation = (Read-Host -Prompt "Enter the log file location (Default: C:\Migr
 if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:\Migration"
 }
+# If $LogLocation is set to "C:\Migration", then $logFilePath will be set to "C:\Migration\Robocopy.log".
+$RoboLogFilePath = "$LogLocation\Robocopy.log"
 
 $FSxDriveLetter = (Read-Host -Prompt "Enter the drive letter to use for the Amazon FSx file system (Default: Z:)").Trim()
 if ([string]::IsNullOrEmpty($FSxDriveLetter)) {
     $FSxDriveLetter = "Z:"
 }
-
-# If $LogLocation is set to "C:\Migration", then $logFilePath will be set to "C:\Migration\Robocopy.log".
-$RoboLogFilePath = "$LogLocation\Robocopy.log"
 
 $LocalAdminGroup = (Read-Host -Prompt "Enter the local admin group (Default: BUILTIN\Administrators)").Trim()
 if ([string]::IsNullOrEmpty($LocalAdminGroup)) {
