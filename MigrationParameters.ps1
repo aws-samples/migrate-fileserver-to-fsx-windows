@@ -81,8 +81,9 @@ $Region = Read-Host -Prompt "Please enter the region (e.g., eu-west-1) of your F
 $GetFileSystems = (Get-FsxFileSystem -Region $Region)
 if ($GetFileSystems -is [array]){
     
-    for($i = 0; $i -lt $GetFileSystem.FileSystemId.count; $i++){
-        Write-Host "$($i): $($GetFileSystems.DNSName[$i]) "
+    for($i = 0; $i -lt $GetFileSystems.FileSystemId.count; $i++){
+        Write-Host "$($i): $($GetFileSystems.DNSName[$i]) - $($GetFileSystems[$i].StorageCapacity)GB "
+       
      }
     $Selection = Read-Host -Prompt "Multiple Filesystems found, pick one to use"
     $FilesytemId = $GetFileSystems[$Selection]
@@ -92,8 +93,7 @@ if ($GetFileSystems -is [array]){
 } else{
     $FSxId = $GetFileSystems.FileSystemId
     
-}
-
+} 
 
 # Retrieve the Amazon FSx file system details
 try {  
