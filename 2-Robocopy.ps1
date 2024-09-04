@@ -50,8 +50,8 @@ else
     Write-Host "Drive letter $FSxDriveLetter is already mapped" -ForegroundColor Yellow
 }
 
-# Check if $logFilePath is empty
-if ([string]::IsNullOrWhiteSpace($logFilePath))
+# Check if $RoboLogFilePath is empty
+if ([string]::IsNullOrWhiteSpace($RoboLogFilePath))
 {
     Write-Host "logFilePath is empty. Exiting script." -ForegroundColor Red
     exit 1
