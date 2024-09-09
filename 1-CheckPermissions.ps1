@@ -63,6 +63,8 @@ foreach ($share in $ShareFolder)
                     $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($Identity,$FileSystemRight,$inheritance,$Propagation,$RuleType)
                     $ACL.SetAccessRule($AccessRule)
                     $ACL | Set-Acl -Path $ACLPath
+                    Write-Host "The domain group $DomainAdminGroup has been added to $ACLPath" -ForegroundColor Green 
+
                 }
                 Catch {
                     $ErrorMsg = $_.Exception.Message
