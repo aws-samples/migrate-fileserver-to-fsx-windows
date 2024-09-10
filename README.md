@@ -16,9 +16,12 @@ Overview
 
 ## Prerequisites
 
-PowerShell 5.1 or later
-Active Directory module for PowerShell
-Appropriate permissions to manage file shares, Active Directory objects, and DNS records
+1. Open powershell as Administrator, and map the FSx file system to a drive letter: `net use Z: \\FSxServer\D$ /persistent:yes`  
+1. PowerShell 5.1 or later
+1. Active Directory module for PowerShell (1-Check-Permissions.ps1 script installs this if not found)
+1. Appropriate permissions to manage file shares, Active Directory objects, and DNS records
+1. (Optional) If you are running your source file server on EC2 instance, which has the AWS PowerShell Tools pre-installed. You can attach an IAM role or Access Key credentials taht have FSx describe permissions. This will be used to auto detect FSx DNS name, and endpoint details
+
 
 ## Note
 
