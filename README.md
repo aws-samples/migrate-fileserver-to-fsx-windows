@@ -1,8 +1,6 @@
 ## Migrate Windows File Servers to Amazon FSx for Windows File Server
 
-
 This repository contains a set of PowerShell scripts to assist in the migration of a Windows file server to Amazon FSx for Windows File Server.
-Overview
 
 ## The migration process involves the following steps:
 
@@ -22,7 +20,6 @@ Overview
 1. Appropriate permissions to manage file shares, Active Directory objects, and DNS records
 1. (Optional) If you are running your source file server on EC2 instance, which has the AWS PowerShell Tools pre-installed. You can attach an IAM role or Access Key credentials that have FSx describe permissions. This will be used to auto detect FSx DNS name, and endpoint details
 
-
 ## Note
 
 The FSx for Windows file system by default creates a demo share named "Share", if your source file server has a share folder called "Share" you would need to either manually delete the one that exists on FSx Windows first before migrating or rename the on premise share to something else.
@@ -31,7 +28,6 @@ The FSx for Windows file system by default creates a demo share named "Share", i
 
 Clone the repository to your local machine. Alternatively download as a zip file.
 Review and update the configuration parameters in the MigrationParameters.ps1 file.
-
 
 ## Note
 
