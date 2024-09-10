@@ -1,4 +1,4 @@
- # This script will prompt for inputs, however you can edit the default values below:
+# This script will prompt for inputs, however you can edit the default values below:
 $LogLocation = (Read-Host -Prompt "Enter the log file location (Default: C:\Migration)").Trim()
 if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:\Migration"
@@ -78,69 +78,35 @@ foreach ($GroupName in $RegionGroups.Keys) {
 $Region = Read-Host -Prompt "Please enter the region (e.g., eu-west-1) of your FSx Windows system: "
 
 # Get all filesystems in that region
-$GetFileSystems = (Get-FsxFileSystem -Region $Region)
-if ($GetFileSystems -is [array]){
-    
-    for($i = 0; $i -lt $GetFileSystems.FileSystemId.count; $i++){
-        Write-Host "$($i): $($GetFileSystems.DNSName[$i]) - $($GetFileSystems[$i].StorageCapacity)GB "
-       
-     }
-    $Selection = Read-Host -Prompt "Multiple Filesystems found, pick one to use"
-    $FilesytemId = $GetFileSystems[$Selection].FileSystemId
-    $GetFileSystem = (Get-FSXFileSystem -FileSystemId $FilesytemId -Region $Region)
-    $FSxId = $GetFileSystem.FileSystemId
-
-} else{
-    $FSxId = $GetFileSystems.FileSystemId
-    
-}
-
-# Retrieve the Amazon FSx file system details
-try {  
-        $FileSystemId = (Read-Host -Prompt "Enter the Amazon FSx file system Id (Default:$FSxId").Trim()
-        if ([string]::IsNullOrEmpty($FileSystemId)) {
-            $FileSystemId = "$FSxId"
-        }
-        Write-Host "Getting values for FSx automatically. Please wait" -ForegroundColor Yellow
-        Write-Host "Get-FsxFileSystem -FileSystemId $FileSystemId" -ForegroundColor Yellow
-        $FSxFileSystem = Get-FsxFileSystem -FileSystemId $FileSystemId -ErrorAction Stop
+try {
+    $GetFileSystems = (Get-FsxFileSystem -Region $Region)
+    if ($GetFileSystems -is [array]){
         
-        # Get the DNS name of the Amazon FSx file system
-        $FSxDNSName = $FSxFileSystem.DNSName
+        for($i = 0; $i -lt $GetFileSystems.FileSystemId.count; $i++){
+            Write-Host "$($i): $($GetFileSystems.DNSName[$i]) - $($GetFileSystems[$i].StorageCapacity)GB "
+           
+         }
+         $Selection = Read-Host -Prompt "Multiple Filesystems found, pick one to use"
+         $FilesytemId = $GetFileSystems[$Selection].FileSystemId
+         $GetFileSystem = (Get-FSXFileSystem -FileSystemId $FilesytemId -Region $Region)
+         $FSxId = $GetFileSystem.FileSystemId
     
-        # Get the Remote PowerShell endpoint for the Amazon FSx file system
-        $FSxDestRPSEndpoint = $FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint
-
-        # Get Alias
-        $Alias = $FSxFileSystem.WindowsConfiguration.Aliases.Name
-    
-        Write-Host "Values retrieved automatically:" -ForegroundColor Green
-        Write-Host "FSxDNSName: $FSxDNSName"
-        Write-Host "FSxDestRPSEndpoint: $FSxDestRPSEndpoint"
-        Write-Host "Alias: $Alias"
-    
+    } else{
+           $FSxId = $GetFileSystems.FileSystemId
+        
+    }
 }
 catch {
-    Write-Host "Unable to retrieve values automatically. Please provide the following information manually:" -ForegroundColor Yellow
-
-    # Prompt the user to enter the values with default options
-    $FSxDNSName = (Read-Host -Prompt "Enter the DNS name of the Amazon FSx file system (Default: $($FSxFileSystem.DNSName))").Trim()
-    if ([string]::IsNullOrEmpty($FSxDNSName)) {
-        $FSxDNSName = $FSxFileSystem.DNSName
-    }
-
-    $FSxDestRPSEndpoint = (Read-Host -Prompt "Enter the Remote PowerShell endpoint for the Amazon FSx file system (Default: $($FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint))").Trim()
-    if ([string]::IsNullOrEmpty($FSxDestRPSEndpoint)) {
-        $FSxDestRPSEndpoint = $FSxFileSystem.WindowsConfiguration.RemoteAdministrationEndpoint
-    }
-
-    
-    $Alias = (Read-Host -Prompt "Enter the alias for the file server (Press enter to skip)").Trim()
-    if ([string]::IsNullOrEmpty($Alias)) {
-        $Alias = $null
-    }
-    
+        Write-Host "AWS PowerShell tools not installed, skipping this step. Please supply the FSx details manually." -ForegroundColor Yellow
+        $FSxId = (Read-Host -Prompt "Enter the Amazon FSx file system Id").Trim()
+        $FSxDNSName = (Read-Host -Prompt "Enter the DNS name of the Amazon FSx file system").Trim()
+        $FSxDestRPSEndpoint = (Read-Host -Prompt "Enter the Remote PowerShell endpoint for the Amazon FSx file system").Trim()
+        $Alias = (Read-Host -Prompt "Enter the alias for the file server (Press enter to skip)").Trim()
+        if ([string]::IsNullOrEmpty($Alias)) {
+            $Alias = $null
+        }
 }
+
 #####################################################
 # DO NOT EDIT AFTER THIS LINE
 #####################################################
