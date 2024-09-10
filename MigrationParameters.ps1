@@ -31,9 +31,6 @@ else {
     $ShareRootFolder = $ShareRootFolder -split ','
 }
 
-# If $ShareRootFolder = "C:\share1","D:\" The script will robocopy top level folder "C:\share1","D:\" and all subfolders located inside share1 and D:\ from the source file server to FSx
-# https://andys-tech.blog/2020/07/robocopy-is-mt-with-more-threads-faster/ 
-
 # Get the current AD domain
 $Domain = Get-ADDomain
 $NetBIOS = $Domain.NetBIOSName
@@ -86,25 +83,32 @@ try {
             Write-Host "$($i): $($GetFileSystems.DNSName[$i]) - $($GetFileSystems[$i].StorageCapacity)GB "
            
          }
-         $Selection = Read-Host -Prompt "Multiple Filesystems found, pick one to use"
-         $FilesytemId = $GetFileSystems[$Selection].FileSystemId
-         $GetFileSystem = (Get-FSXFileSystem -FileSystemId $FilesytemId -Region $Region)
-         $FSxId = $GetFileSystem.FileSystemId
+        $Selection = Read-Host -Prompt "Multiple Filesystems found, pick one to use"
+        $FilesytemId = $GetFileSystems[$Selection].FileSystemId
+        $GetFileSystem = (Get-FSXFileSystem -FileSystemId $FilesytemId -Region $Region)
+        $FSxId = $GetFileSystem.FileSystemId
     
     } else{
-           $FSxId = $GetFileSystems.FileSystemId
+        $FSxId = $GetFileSystems.FileSystemId
         
     }
 }
 catch {
-        Write-Host "AWS PowerShell tools not installed, skipping this step. Please supply the FSx details manually." -ForegroundColor Yellow
-        $FSxId = (Read-Host -Prompt "Enter the Amazon FSx file system Id").Trim()
-        $FSxDNSName = (Read-Host -Prompt "Enter the DNS name of the Amazon FSx file system").Trim()
-        $FSxDestRPSEndpoint = (Read-Host -Prompt "Enter the Remote PowerShell endpoint for the Amazon FSx file system").Trim()
-        $Alias = (Read-Host -Prompt "Enter the alias for the file server (Press enter to skip)").Trim()
-        if ([string]::IsNullOrEmpty($Alias)) {
-            $Alias = $null
+    Write-Host "AWS PowerShell tools not installed, skipping this step. Please supply the FSx details manually." -ForegroundColor Yellow
+    $FSxId = (Read-Host -Prompt "Enter the Amazon FSx file system Id").Trim()
+    $FSxDNSName = (Read-Host -Prompt "Enter the DNS name of the Amazon FSx file system").Trim()
+    $FSxDestRPSEndpoint = (Read-Host -Prompt "Enter the Remote PowerShell endpoint for the Amazon FSx file system").Trim()
+    $Alias = (Read-Host -Prompt "If using an alias instead of file server hostname, insert the alias in FQDN format e.g. files.domain.local (Press enter to skip)").Trim()
+    if ([string]::IsNullOrEmpty($Alias)) {
+        $Alias = $null
+    }
+    else {
+        # Validate the Alias format
+        if ($Alias -notmatch "^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z]+$") {
+            Write-Host "Error: The Alias '$Alias' is not in the correct FQDN format (e.g., files.domain.local)." -ForegroundColor Red
+            exit 1
         }
+    }
 }
 
 #####################################################
@@ -160,7 +164,7 @@ Function Write-Log {
     }
 
     # Write the log message to the file
-    Add-Content $Logfilepath -Value $Line
+    Add-Content nt $Logfilepath -Value $Line
 }
 
 # Define the required variables
@@ -256,4 +260,4 @@ if ($topLevelFolderCount -eq $CountShareRoot) {
 }
 else {
     Write-Host "The number of top-level folders is $topLevelFolderCount and does not match the total number of ShareRootFolders which is $CountShareRoot."
-} 
+}
