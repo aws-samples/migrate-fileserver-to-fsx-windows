@@ -16,7 +16,7 @@ Overview
 
 ## Prerequisites
 
-1. Open powershell as Administrator, and map the FSx file system to a drive letter: `net use Z: \\FSxServer\D$`  
+1. The source file server needs a drive mapping to destination FSx. Open powershell as Administrator, and run: `net use Z: \\FSxServer\D$`  
 1. PowerShell 5.1 or later
 1. Active Directory module for PowerShell (1-Check-Permissions.ps1 script installs this if not found)
 1. Appropriate permissions to manage file shares, Active Directory objects, and DNS records
