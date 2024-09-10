@@ -38,7 +38,9 @@ Dot Source the MigrationParameters.ps1 file to load all the values into memory:
 
 ` . .\MigrationParameters.ps1 `
 
-**Note:**The double . . 
+## Note
+
+The double . . 
 
 ### Step 2:
 
