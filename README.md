@@ -14,7 +14,7 @@ This repository contains a set of PowerShell scripts to assist in the migration 
 
 ## Prerequisites
 
-1. The source file server needs a drive mapping to destination FSx. Open powershell as Administrator, and run: `net use Z: \\FSxServer\D$`  
+1. The source file server needs a drive mapping to destination FSx. Open powershell as Administrator, and run: `net use Z: \\FSxDNSName\D$`  
 1. PowerShell 5.1 or later
 1. Active Directory module for PowerShell (1-Check-Permissions.ps1 script installs this if not found)
 1. Appropriate permissions to manage file shares, Active Directory objects, and DNS records
