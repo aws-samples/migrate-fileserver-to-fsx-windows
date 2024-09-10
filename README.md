@@ -33,14 +33,14 @@ Clone the repository to your local machine. Alternatively download as a zip file
 Review and update the configuration parameters in the MigrationParameters.ps1 file.
 
 
+## Note
+
+There is a double dot . . in the dot source command
+
 ### Step 1:
 Dot Source the MigrationParameters.ps1 file to load all the values into memory:
 
 ` . .\MigrationParameters.ps1 `
-
-## Note
-
-The double . . 
 
 ### Step 2:
 
