@@ -20,6 +20,18 @@ The script handles any exceptions that might occur during the SPN management pro
         # Get the computer object that has the Alias set as an SPN
         Try
         {
+            # Check if the alias is already in FQDN format
+            if ($item.Contains("."))
+            {
+                $Identity = [string]$item.Split(".")[0]
+            }
+            else
+            {
+                # Assume the alias is a short hostname and append the domain
+                $GetDomain = (Get-ADDomain).DNSRoot
+                $Identity = $item + "." + $GetDomain
+            }
+            
             $Identity = [string]$item.Split(".")[0]
             Import-Module ActiveDirectory 
             
