@@ -104,7 +104,7 @@ catch {
     }
     else {
         # Validate the Alias format
-        if ($Alias -notmatch "^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z]+$") {
+        if ($Alias -notmatch "^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$") {
             Write-Host "Error: The Alias '$Alias' is not in the correct FQDN format (e.g., files.domain.local)." -ForegroundColor Red
             exit 1
         }
