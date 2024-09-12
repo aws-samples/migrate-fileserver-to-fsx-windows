@@ -164,7 +164,7 @@ Function Write-Log {
     }
 
     # Write the log message to the file
-    Add-Content nt $Logfilepath -Value $Line
+    Add-Content $Logfilepath -Value $Line
 }
 
 # Define the required variables
