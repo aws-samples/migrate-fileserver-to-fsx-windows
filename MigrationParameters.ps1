@@ -1,7 +1,9 @@
 # This script will prompt for inputs, however you can edit the default values below:
-$LogLocation = (Read-Host -Prompt "Enter the log file location (Default: C:\Migration)").Trim()
+$LogLocation = (Read-Host -Prompt "Enter the log and config export location (Default: C:\Migration)").Trim()
 if ([string]::IsNullOrEmpty($LogLocation)) {
     $LogLocation = "C:\Migration"
+} elseif ($LogLocation -eq "C:") {
+    $LogLocation = "C:\"
 }
 # If $LogLocation is set to "C:\Migration", then $logFilePath will be set to "C:\Migration\Robocopy.log".
 $RoboLogFilePath = "$LogLocation\Robocopy.log"
