@@ -1,12 +1,35 @@
 <#
-This script is responsible for disabling the CredSSP configuration that was enabled earlier in the process.
-It disables the CredSSP client and server roles using the Disable-WSManCredSSP cmdlet.
-It also removes the registry keys that were created to enable the CredSSP functionality.
-The script defines two helper functions, Get-TrustedHost and Remove-TrustedHost, to manage the trusted hosts list in the WinRM configuration.
-Finally, it removes the trusted host entry for the FSx instance's FQDN using the Remove-TrustedHost function.
-The script handles any exceptions that might occur during the CredSSP disabling process.
+The provided script is responsible for disabling the CredSSP configuration that was previously enabled. 
+
+    Disable CredSSP Client and Server Roles:
+        The script uses the Disable-WSManCredSSP cmdlet to disable the CredSSP client and server roles.
+
+    Remove Registry Keys:
+        The script removes the following registry keys that were created to enable the CredSSP functionality:
+            HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentials
+            HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly
+            HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Credssp\PolicyDefaults\AllowFreshCredentialsDomain
+
+    Helper Functions:
+        The script defines two helper functions: Get-TrustedHost and Remove-TrustedHost.
+        Get-TrustedHost retrieves the list of trusted hosts from the WinRM configuration.
+        Remove-TrustedHost removes the specified hosts from the trusted hosts list.
+
+    Remove Trusted Host:
+        The script uses the Remove-TrustedHost function to remove the FQDN of the host from the trusted hosts list.
+        The FQDN is expected to be defined in a separate file, MigrationParameters.ps1, which is not provided in the given code.
+
+    Error Handling:
+        The script wraps the entire disabling process in a try-catch block to handle any exceptions that might occur during the execution.
+
+Overall, the script is responsible for disabling the CredSSP configuration, removing the related registry keys, and removing the FQDN of the host from the trusted hosts list. 
+This is typically done after the CredSSP configuration has been enabled and is no longer needed.
+
+The $FQDN variable, is expected to be supplied by the MigrationParameters file when running . .\MigrationParameters.ps1 
+Without this file, the script will not be able to remove the trusted host entry for the FQDN.
+
 #>
-# Disable CredSSP
+
 Try
 {
     $ErrorActionPreference = "Stop"
