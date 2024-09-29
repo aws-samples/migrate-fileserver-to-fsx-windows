@@ -1,13 +1,29 @@
 <#
-The script is designed to enable CredSSP (Credential Security Support Provider) on both the server and client sides.
-It performs the following tasks:
+This script is designed to enable the Credential Security Support Provider (CredSSP) on both the server and client sides. 
+    Enable CredSSP on the Server Side:
+        The script uses the Enable-WSManCredSSP cmdlet with the -Role Server parameter to enable CredSSP on the server side.
+        It handles any exceptions that may occur during the execution of this command using a try-catch block.
 
-    Enables CredSSP on the server side using the Enable-WSManCredSSP cmdlet.
-    Enables CredSSP on the client side, also using the Enable-WSManCredSSP cmdlet, and sets the trustedhosts and credSSP values in the WinRM configuration.
-    Creates a new registry key HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly if it doesn't already exist, and sets the value 1 to *.
+    Enable CredSSP on the Client Side:
+        The script uses the Enable-WSManCredSSP cmdlet with the -Role Client parameter to enable CredSSP on the client side.
+        It also sets the trustedhosts and credSSP values in the WinRM configuration using the Set-Item cmdlet.
+        Again, it uses a try-catch block to handle any exceptions that may occur.
 
-The script uses try-catch blocks to handle any exceptions that might occur during the execution of the commands.
-It also restarts the WinRM service at the end.
+    Create a Registry Key:
+        The script checks if the HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly registry key exists, and if not, it creates it.
+        It then sets the value of the 1 registry key to *, using the New-ItemProperty cmdlet.
+        This step is also wrapped in a try-catch block to handle any exceptions.
+
+    Restart the WinRM Service:
+        Finally, the script restarts the WinRM service using the Restart-Service cmdlet.
+
+The purpose of this script is to enable CredSSP on both the server and client sides, which is a security protocol that allows the delegation of user credentials from the client to the server. 
+This is used by the Invoke-Command -Authentication Credssp -ComputerName $FQDN -Credential $FSxAdminUserCredential to make DNS CNAME changes. 
+The script also creates a registry key that allows the use of fresh credentials when using NTLM authentication, which can be useful in certain scenarios.
+https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-admx-credssp#allowfreshcredentials
+
+Overall, this script is a useful tool for configuring CredSSP on Windows systems.
+
 #>
 # Enable CredSSP
 $FQDN = (Resolve-DnsName $(hostname) -Type A).Name
