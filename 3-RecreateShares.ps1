@@ -1,9 +1,15 @@
 <#
-This script is responsible for recreating the file shares on the FSx instance using PowerShell remoting.
-It first checks if the PowerShell endpoint on the FSx instance is reachable by invoking the Get-FSXSmbShare cmdlet.
-The script then imports the SMB share information from the XML file created earlier and loops through each share.
-For each share, it checks if the share already exists on the FSx instance. If not, it creates the share using the New-FSxSmbShare cmdlet and the parameters extracted from the imported share object.
-The script handles any exceptions that might occur during the share creation process.
+Validate PowerShell Endpoint Connectivity: The script checks if the PowerShell endpoint for the destination FSx file system is reachable. If not, it logs an error and exits.
+
+Import Shares from XML: The script imports the list of shares from the XML file generated in the previous script.
+
+Prepare Share Creation Parameters: The script filters the share properties to only include the parameters that are accepted by the New-FSxSmbShare cmdlet.
+
+Recreate Shares on FSx: The script loops through each share and creates a new share on the destination FSx file system using the Invoke-Command cmdlet and the New-FSxSmbShare cmdlet. 
+It constructs the share path on the FSx file system based on the share name.
+    If the share already exists on the FSx file system, the script skips it and logs a message.
+    If the share does not exist, the script creates a new share and logs a message.
+
 #>
 #########################################################################
 # RECREATE FILE SHARES ON FSX USING POWERSHELL REMOTING
