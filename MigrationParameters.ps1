@@ -174,6 +174,7 @@ $requiredVars = @(
     "FSxDNSName",
     "FSxDriveLetter",
     "FSxDestRPSEndpoint",
+    "FQDN",
     "LogLocation",
     "LocalAdminGroup",
     "DomainAdminGroup",
