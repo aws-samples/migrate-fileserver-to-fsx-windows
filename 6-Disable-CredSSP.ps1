@@ -23,8 +23,10 @@ Try
 
     Write-Host "Restore TrustedHosts list from the file C:\TrustedHosts.txt" -ForegroundColor Green 
     $TrustedHostsFromFile = Get-Content -Path "C:\TrustedHosts.txt"
-    Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "$TrustedHostsFromFile" 
+    Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "$TrustedHostsFromFile" -Force
+    Get-item WSMan:\localhost\Client\TrustedHosts 
 
 }Catch{
     Write-Output $_
-}
+} 
+
