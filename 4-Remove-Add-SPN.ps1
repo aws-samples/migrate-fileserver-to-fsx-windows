@@ -1,10 +1,34 @@
 <#
-This script is responsible for removing the existing Service Principal Name (SPN) from the source file server's Active Directory computer object and then,
-adding the new SPN to the FSx instance's Active Directory computer object.
-The script first loops through the provided aliases and checks if the corresponding SPN exists on the source file server's computer object. If found, it removes the SPN using the Set-AdComputer cmdlet.
-It also checks and removes the msDS-AdditionalDnsHostname attribute if it exists.
-In the second part of the script, it invokes a remote PowerShell session on the FSx instance and adds the new SPN using the SetSpn tool and the Set-AdComputer cmdlet.
-The script handles any exceptions that might occur during the SPN management process.
+This PowerShell script is designed to remove the existing Service Principal Names (SPNs) associated with the aliases of the source file server's computer object in Active Directory, and then add the 
+appropriate SPNs to the Active Directory computer object of the destination AWS FSx file system.
+
+Here's a breakdown of what the script does:
+
+    Validate Alias: The script first checks if the $Alias variable is null or empty. If it is, the script exits safely.
+
+    Remove SPNs from Source File Server: The script loops through each alias in the $Alias variable and performs the following actions:
+        Finds the computer object in Active Directory that has the alias set as an SPN.
+        Checks if the SPN exists for the alias.
+        If the SPN exists, the script removes the SPN from the computer object using the Set-AdComputer cmdlet.
+        If the msDS-AdditionalDnsHostname attribute exists, the script removes the alias from this attribute as well.
+
+    Add SPNs to FSx File System: After removing the SPNs from the source file server, the script invokes a remote PowerShell session on the destination FSx file system and performs the following actions:
+        Resolves the DNS name of the FSx file system to get the computer host name.
+        Retrieves the Active Directory computer object for the FSx file system.
+        Extracts the domain name from the computer object's distinguished name.
+        Checks if the alias matches the domain name of the FSx file system.
+        If the alias matches, the script adds the alias to the msDS-AdditionalDnsHostname attribute of the FSx file system's computer object using the Set-ADObject cmdlet.
+        The script also sets the appropriate SPNs for the alias using the setspn command.
+
+The script requires the following variables to be set:
+
+    $Alias: The list of aliases associated with the source file server.
+    $FSxDnsName: The DNS name of the FSx file system.
+    $FSxAdminUserCredential: The credentials for an administrative user on the FSx file system.
+
+These variable values are set via the MigrationParameters.ps1 file and loaded into memory using:  . .\MigrationParameters.ps1
+The main purpose of this script is to ensure that the necessary SPNs are set up on the destination FSx file system to enable seamless access to the file shares, especially when using Kerberos authentication. By removing the SPNs from the source file server and adding them to the FSx file system, the script helps to avoid potential authentication issues during the migration process.
+
 #>
 #########################################################################
 # REMOVE SPN FROM SOURCE FILE SERVER
@@ -42,24 +66,23 @@ The script handles any exceptions that might occur during the SPN management pro
             $Filter = [string]"HOST/"+"$Identity"
     
             Write-Output "Checking if SPN exist for $($Filter)"
-            Write-Log -Level INFO -Message "Checking if SPN exist for $($Filter)"
+            Write-Log -Level INFO -Message "Checking if SPNs of the alias $($Filter) is linked to a computer object"
     
-            Write-Host "Check if SPNs of the alias are linked to a computer object" -ForeGroundColor Green
+            Write-Host "Checking if SPNs of the alias $($Filter) is linked to a computer object" -ForeGroundColor Green
             $GetSPN = Get-ADObject -filter {servicePrincipalName -eq $Filter} -Server $TargetDomainController -Credential $FSxAdminUserCredential
     
             Write-Output "Current SPN $($Filter) is linked to $($GetSPN.Name)"
             Write-Log -Message "Current SPN $($Filter) is linked to $($GetSPN.Name)"
     
-            if ( ($null -eq $GetSPN) -or ("" -eq $GetSPN) )
-            {
-                Write-Output "SPN not found for $($Filter) "
-                Write-Log -Level INFO -Message "SPN not found for $($Filter)"
+            if ([string]::IsNullOrEmpty($GetSPN)){
+                Write-Output "No SPN record found for $($Filter) skipping delete SPN"
+                Write-Log -Level INFO -Message "No SPN record found for $($Filter) skipping delete SPN"
             }else
             {
                 # IF SPN of alias exists anywhere in domain, delete SPN
                 $Identity = $GetSPN.Name
-                Write-Output "Deleting SPN for $($item) on computer object $($Identity)"
-                Write-Log -Level INFO -Message "Deleting SPN for $($item) on computer object $($Identity)"
+                Write-Output "Deleting SPN of the source server $($item) from computer object $($Identity)"
+                Write-Log -Level INFO -Message "Deleting SPN of the source server $($item) from computer object $($Identity)"
                 # HOST SPN FQDN
                 Set-AdComputer -Identity $Identity -ServicePrincipalName @{Remove=("HOST/$item")} -Server $TargetDomainController -Credential $FSxAdminUserCredential
                 # HOST SPN HostName
@@ -114,7 +137,6 @@ The script handles any exceptions that might occur during the SPN management pro
         }
     
     }  
-    
     
     #########################################################################
     ## ADD SPN TO FSX
