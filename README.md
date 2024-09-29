@@ -14,7 +14,8 @@ This repository contains a set of PowerShell scripts to assist in the migration 
 
 ## Prerequisites
 
-1. If using Robocopy, the source file server needs a drive mapping to destination FSx. Open powershell as Administrator, and run: `net use Z: \\FSxDNSName\D$`  
+1. If using Robocopy, the source file server needs VPN\Direct Connect connectivity between source file server and AWS FSx.
+2. A drive mapping to destination FSx. Open powershell as Administrator, and run: `net use Z: \\FSxDNSName\D$`  
     Alternatively if you do not have a VPN to AWS, you can:    
     1. Run 1-CheckPermissions.ps1 on source file server to create an XML file with all share information. ( Path: $LogLocation\SmbShares.xml )
     2. Copy that file to a domain joined EC2 Windows instance in the same subnet as FSx Windows.
@@ -32,7 +33,7 @@ The FSx for Windows file system by default creates a demo share named "Share", i
 
 ## Usage
 
-Clone the repository to your local machine. Alternatively download as a zip file.
+Clone the repository to your local machine. Alternatively download the repository as a zip file.
 Review and update the configuration parameters in the MigrationParameters.ps1 file.
 
 ## Note
@@ -65,6 +66,7 @@ Run the scripts that apply to your environment in the following order:
     ![Robocopy](./img/RoboCopy2.png)
 
 1. ` .\3-RecreateShares.ps1 ` (Required)
+    ![Check Permissions Required](./img/RecreateShares.png)
 1. ` .\4-Remove-Add-SPN.ps1 ` (Optional)
 1. ` .\5-Alias-CNAME.ps1 ` (Optional)
 1. ` .\6-Disable-CredSSP.ps1 ` (Optional)
