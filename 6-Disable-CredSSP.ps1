@@ -80,8 +80,10 @@ Try
             Set-Item WSMan:\localhost\Client\TrustedHosts -Value ($trustedHosts -join ',' ) -Force
         }
     }
-    # $FQDN = (Resolve-DnsName $(hostname) -Type A).Name located in MigrationParameters.ps1
-    Remove-TrustedHost $FQDN
+    #Restore the TrustedHosts list from the file created by Enable-CredSSP.ps1 under C:\Trustedhosts.txt:
+    $TrustedHostsFromFile = Get-Content -Path "C:\TrustedHosts.txt"
+    Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "$TrustedHostsFromFile" 
 
+}Catch{
+    Write-Output $_
 }
-Catch{Write-Output $_}
