@@ -19,11 +19,12 @@ This repository contains a set of PowerShell scripts to assist in the migration 
     1. Run 1-CheckPermissions.ps1 on source file server to create an XML file with all share information. ( Path: $LogLocation\SmbShares.xml )
     2. Copy that file to a domain joined EC2 Windows instance in the same subnet as FSx Windows.
     3. Download the code repo or zip file to the EC2 Windows instance and run MigrationParameters.ps1 then RecreateShares.ps1 file to rebuild the shares on FSx Windows.
+        ![VPN Diagram Parameters](./img/NoVPN.png)
     4. Run any other scripts you may need (Remove-AddSPN,Alias-CNAME etc...) 
 1. PowerShell 5.1 or later
 1. Active Directory module for PowerShell (1-Check-Permissions.ps1 script installs this if not found)
 1. Appropriate permissions to manage file shares, Active Directory objects, and DNS records
-1. (Optional) If you are running your source file server on EC2 instance, which has the AWS PowerShell Tools pre-installed. You can attach an IAM role that has the FSx describe permissions. This will be used to auto detect FSx DNS name, and endpoint details
+1. (Optional) If you are running your source file server on EC2 instance, which has the AWS PowerShell Tools pre-installed. You can attach an IAM role that has the "fsx:DescribeFileSystems" permissions. This will be used to auto detect FSx DNS name, and endpoint details
 
 ## Note
 
