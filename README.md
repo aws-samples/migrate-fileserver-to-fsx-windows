@@ -14,10 +14,14 @@ This repository contains a set of PowerShell scripts to assist in the migration 
 
 ## Prerequisites
 
-### Connectivity: No VPN or AWS Direct Connect to AWS VPC
+1. PowerShell version 5.1 or later is required to run these scripts
+1. Active Directory module for PowerShell (1-Check-Permissions.ps1 script installs this if not found)
+1. Appropriate permissions to manage file shares, Active Directory objects, and DNS records
+   
+### Connectivity: No VPN to AWS VPC
    
 1. AWS DataSync Agent to transfer the data from on premise to Amazon FSx Windows: https://aws.amazon.com/blogs/storage/migrate-to-amazon-fsx-for-windows-file-server-using-aws-datasync/
-2. Run 1-CheckPermissions.ps1 on source file server to create an XML file with all share information. ( Path: $LogLocation\SmbShares.xml )
+2. Run 1-CheckPermissions.ps1 on source file server to create an XML file with all share information. (Path: $LogLocation\SmbShares.xml )
 3. Copy that XML file to a domain joined EC2 Windows instance hosted in the same subnet as FSx Windows.
 4. Download the code repo or zip file to the EC2 Windows instance and run MigrationParameters.ps1 then RecreateShares.ps1 file to rebuild the shares on FSx Windows.
 
@@ -25,15 +29,12 @@ This repository contains a set of PowerShell scripts to assist in the migration 
 
 5. Run any other scripts you may need (Remove-AddSPN,Alias-CNAME etc...)
 
-### Connectivity: VPN or AWS Direct Connect to AWS VPC
+### Connectivity: VPN to AWS VPC
 
    ![VPN Diagram Parameters](./img/VPN.png)
 
 1. A drive mapping to destination FSx. Open powershell as Administrator, and run: `net use Z: \\FSxDNSName\D$`  
-1. PowerShell version 5.1 or later is required to run these scripts
-1. Active Directory module for PowerShell (1-Check-Permissions.ps1 script installs this if not found)
-1. Appropriate permissions to manage file shares, Active Directory objects, and DNS records
-1.    If using Robocopy, the source file server needs VPN\Direct Connect connectivity between source file server and AWS FSx.
+1. If using Robocopy, the source file server needs VPN\Direct Connect connectivity between source file server and AWS FSx.
 1. (Optional) If source file server is hosted on an EC2 instance, which has the AWS PowerShell Tools pre-installed. You can attach an IAM role that has the "fsx:DescribeFileSystems" permissions. The script will auto detect FSx DNS name, and endpoint details
 
 ## Note
