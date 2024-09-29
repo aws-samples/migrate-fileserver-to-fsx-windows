@@ -38,16 +38,18 @@ Dot Source the MigrationParameters.ps1 file to load all the values into memory:
 
 ` . .\MigrationParameters.ps1 `
 
+![Migration Parameters](./img/MigrationParameters.png)
+
 ### Step 2:
 
-Run the scripts in the following order:
-1. ` .\0-Enable-CredSSP.ps1 `
+Run the scripts that apply to your environment in the following order:
+1. ` .\0-Enable-CredSSP.ps1 ` (Optional - Depends if using CNAME\Alias)
 1. ` .\1-CheckPermissions.ps1 `
-1. ` .\2-Robocopy.ps1 `
+1. ` .\2-Robocopy.ps1 ` (Optional)
 1. ` .\3-RecreateShares.ps1 `
-1. ` .\4-Remove-Add-SPN.ps1 `
-1. ` .\5-Alias-CNAME.ps1 `
-1. ` .\6-Disable-CredSSP.ps1 `
+1. ` .\4-Remove-Add-SPN.ps1 ` (Optional)
+1. ` .\5-Alias-CNAME.ps1 ` (Optional)
+1. ` .\6-Disable-CredSSP.ps1 ` (Optional)
 
 ## Logging and Troubleshooting
 
