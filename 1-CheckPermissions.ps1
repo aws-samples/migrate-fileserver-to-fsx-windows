@@ -1,5 +1,29 @@
-#########################################################################
-# CHECK LOCAL FOLDER PERMISSIONS ON SOURCE FILE SERVER
+<# 
+Check for Shares on Source Server: The script first checks if there are any shares on the source file server. If no shares are found, it logs an error and exits.
+
+Validate ShareRootFolder: The script checks if the $ShareRootFolder variable is null or whitespace, and if so, logs an error and exits.
+
+Install Required Windows Features: The script checks if the required Windows features (RSAT-AD-PowerShell, RSAT-ADDS-Tools, RSAT-DNS-Server) are installed, and installs them if not.
+
+Export SMB Shares to XML: The script exports the existing SMB shares to an XML file as a backup.
+
+NTFS Permission Check: The script loops through each share folder and checks if the local Administrators group has access. If the local Administrators group is found and the 
+Domain Administrators group is not present, the script prompts the user to add the Domain Administrators group with full control permissions.
+
+SMB Share Permission Check: The script checks if the local Administrators group has access to the SMB share. If the local Administrators group is found, the script prompts the user to remove the local Administrators group and add the Domain Administrators group with full access.
+
+Key Considerations:
+
+Error Handling: The script includes error handling to log any issues that occur during the process.
+
+Backup and Restore: The script creates a backup of the existing SMB shares in an XML file, which can be used to recreate the shares later if needed.
+
+User Interaction: The script prompts the user for input when it finds local Administrators group permissions, allowing the user to decide whether to fix the permissions or not.
+
+Logging: The script uses a Write-Log function to log various informational and error messages, which can be useful for troubleshooting and record-keeping.
+
+Prerequisites: The script requires the installation of certain Windows features (RSAT-AD-PowerShell, RSAT-ADDS-Tools, RSAT-DNS-Server) to function properly.
+#>
 #########################################################################
 # If no shares found on source server exit out.
 $ShareFolder = Get-SmbShare -Special $false | Where-Object { $_.Name -cnotmatch '^(ADMIN|IPC|PRINT|[A-Z])\$' }
