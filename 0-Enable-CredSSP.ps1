@@ -41,7 +41,35 @@ Try
 {
     Write-Output 'Enabling CredSSP for Client'
     Enable-WSManCredSSP -Role Client -DelegateComputer $FQDN -Force -ErrorAction Stop
-    Set-Item -Path "WSMan:\localhost\client\trustedhosts" -value $FQDN -Force
+    # Trusted Hosts Backup Existing
+    Get-item WSMan:\localhost\Client\TrustedHosts    
+    $ExistingTrustedHosts = (Get-Item -Path "WSMan:\localhost\client\trustedhosts").Value
+    # If nothing exists, set the FQDN of source server as trusted host
+    if ([String]::IsNullOrEmpty($ExistingTrustedHosts))
+    {
+        Write-Host "No trusted hosts found in list, adding $FQDN" -ForegroundColor Green
+        Set-Item -Path "WSMan:\localhost\client\trustedhosts" -Value $FQDN -Force
+    }else{
+            Write-Host "Export the existing TrustedHosts list to C:\TrustedHosts.txt" -ForegroundColor Green
+            $ExistingTrustedHosts | Out-File -FilePath "C:\TrustedHosts.txt"
+            # Check if the $FQDN is already in the Trusted Hosts list
+            if ($ExistingTrustedHosts -like "*$FQDN*")
+            {
+                Write-Host "$FQDN is already in the Trusted Hosts list. No action taken." -ForegroundColor Green
+            }
+            else
+            {
+                
+                if (![String]::IsNullOrEmpty($FQDN))
+                {
+                    # Add the new host to the TrustedHosts list temporarily
+                    Write-Host "Adding $FQDN to existing TrustedHosts list" -ForegroundColor Green
+                    # WSMAN provider has some dynamic parameters that appears only when you are in a WSMAN path for example -Concatenate
+                    Set-Item -Path "WSMan:\localhost\client\trustedhosts" -Value $FQDN -Concatenate -Force
+                }
+            }
+    } 
+
     Set-Item -Path "WSMan:\localhost\service\auth\credSSP" -Value $True -Force
 }
 Catch [System.Exception]
