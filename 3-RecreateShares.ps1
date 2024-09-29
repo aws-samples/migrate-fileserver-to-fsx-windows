@@ -38,13 +38,19 @@ foreach ($item in $shares) {
     {
         Write-Output "About to create a share called $($item.Name)"
         Write-Log -Level INFO -Message "About to create a share called $($item.Name)"
-        if ($item.Path -like 'C:\*') {
+        if ($item.Path -match '^[A-CE-Z]:\\') {
          $SharePath = 'D:' + $item.Path.Substring(2)
         } else {
             $SharePath = $item.Path
         }
-        $CreateShare = Invoke-Command -ConfigurationName FSxRemoteAdmin -ComputerName $FSxDestRPSEndpoint -ErrorVariable errmsg -ScriptBlock {New-FSxSmbShare -Path $Using:SharePath -Credential $Using:FSxAdminUserCredential @Using:param}
-        Write-Output $CreateShare
+        if ($TestDestPS.Name -match $item.Name){
+            Write-Output "Share already exists, skipping"
+            Write-Log -Level INFO -Message "Share already exists, skipping"
+        }
+        else {
+         $CreateShare = Invoke-Command -ConfigurationName FSxRemoteAdmin -ComputerName $FSxDestRPSEndpoint -ErrorVariable errmsg -ScriptBlock {New-FSxSmbShare -Path $Using:SharePath -Credential $Using:FSxAdminUserCredential @Using:param}
+         Write-Output $CreateShare
+        }
        
     }
     Catch
