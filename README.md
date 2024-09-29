@@ -21,21 +21,22 @@ This repository contains a set of PowerShell scripts to assist in the migration 
 ### Connectivity: No VPN to AWS VPC
    
 1. AWS DataSync Agent to transfer the data from on premise to Amazon FSx Windows: https://aws.amazon.com/blogs/storage/migrate-to-amazon-fsx-for-windows-file-server-using-aws-datasync/
-2. Run 1-CheckPermissions.ps1 on source file server to create an XML file with all share information. (Path: $LogLocation\SmbShares.xml )
+2. Run 1-CheckPermissions.ps1 on source file server to create an XML file with all share information. (Path: $LogLocation\SmbShares.xml)
 3. Copy that XML file to a domain joined EC2 Windows instance hosted in the same subnet as FSx Windows.
 4. Download the code repo or zip file to the EC2 Windows instance and run MigrationParameters.ps1 then RecreateShares.ps1 file to rebuild the shares on FSx Windows.
 
-   ![VPN Diagram Parameters](./img/NoVPN.png)
+    ![VPN Diagram Parameters](./img/NoVPN.png)
 
-5. Run any other scripts you may need (Remove-AddSPN,Alias-CNAME etc...)
+6. Run any other scripts you may need (Remove-AddSPN,Alias-CNAME etc...)
 
 ### Connectivity: VPN to AWS VPC
 
-   ![VPN Diagram Parameters](./img/VPN.png)
-
-1. A drive mapping to destination FSx. Open powershell as Administrator, and run: `net use Z: \\FSxDNSName\D$`  
-1. If using Robocopy, the source file server needs VPN\Direct Connect connectivity between source file server and AWS FSx.
+1. If using Robocopy: 
+    1. A drive mapping to destination Amazon FSx Windows D: drive. Open powershell as Administrator, and run: `net use Z: \\FSxDNSName\D$`  
+    1. The source file server needs to reach Amazon FSx Windows on port 445 for SMB and port 5985 in order to establish a Remote PowerShell session.
+    1. See https://docs.aws.amazon.com/fsx/latest/WindowsGuide/cant-access-rps.html for details
 1. (Optional) If source file server is hosted on an EC2 instance, which has the AWS PowerShell Tools pre-installed. You can attach an IAM role that has the "fsx:DescribeFileSystems" permissions. The script will auto detect FSx DNS name, and endpoint details
+   ![VPN Diagram Parameters](./img/VPN.png)
 
 ## Note
 
