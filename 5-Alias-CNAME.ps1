@@ -1,9 +1,31 @@
 <#
-This script is responsible for creating the DNS CNAME records for the provided aliases and linking them to the FSx instance's DNS name.
-It first retrieves the domain name and the DNS server computer names using the Get-CimInstance and Resolve-DnsName cmdlets.
-The script then loops through the provided aliases and checks if the corresponding CNAME record already exists. If it does, the script removes the existing record and 
-creates a new one using the Add-DnsServerResourceRecordCName cmdlet.
-The script handles any exceptions that might occur during the DNS record management process.
+This PowerShell script is designed to create a CNAME (Canonical Name) record in the DNS server for an alias and link it to the hostname of an Amazon FSx (File System) server.
+
+Here's a breakdown of the script:
+
+    Alias Check: The script first checks if the $Alias variable is not null or an empty string. If it's not, the script proceeds to the next step.
+
+    DNS Zone and Server Retrieval: The script tries to retrieve the DNS zone name and the DNS server computer name using the Get-CimInstance and Resolve-DnsName cmdlets.
+
+    CNAME Record Management: For each item in the $Alias array:
+        The script checks if the CNAME record for the alias already exists by using the Get-DnsServerResourceRecord cmdlet. If the record exists, it is removed using the 
+        Remove-DnsServerResourceRecord cmdlet.
+        The script then creates a new CNAME record using the Add-DnsServerResourceRecordCName cmdlet, linking the alias to the $FSxDNSName value (the hostname of the Amazon FSx server).
+
+    Error Handling: The script uses a Try/Catch block to handle any exceptions that might occur during the DNS record management process.
+
+    Output: The script provides some output to the user, indicating the actions it's taking (creating/removing CNAME records).
+
+This script is designed to be run on the source file server with CredSSP auth enabled (specified by the $FQDN variable) using the credentials provided in the $FSxAdminUserCredential variable. 
+
+Invoke-Command -Authentication Credssp -ComputerName $FQDN -Credential $FSxAdminUserCredential
+
+The script uses the Invoke-Command cmdlet to execute the DNS management tasks on the Active Directory DNS server using the -Credential parameter to supply credentials.
+Add-DnsServerResourceRecordCName cmdlet does not offer a way to provide credentials, hence the Invoke-Command with -Credential workaround is being used.
+
+The script is useful for automating the process of creating CNAME records for aliases that point to the Amazon FSx server, which can be helpful in scenarios where you need to manage multiple aliases or 
+update them frequently.
+
 #>
 #########################################################################
 ## RECREATE DNS CNAME RECORD FOR ALIAS AND LINK TO FSX HOSTNAME
