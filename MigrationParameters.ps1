@@ -97,7 +97,6 @@ try {
 }
 catch {
     Write-Host "AWS PowerShell tools not installed, skipping this step. Please supply the FSx details manually." -ForegroundColor Yellow
-    $FSxId = (Read-Host -Prompt "Enter the Amazon FSx file system Id").Trim()
     $FSxDNSName = (Read-Host -Prompt "Enter the DNS name of the Amazon FSx file system").Trim()
     $FSxDestRPSEndpoint = (Read-Host -Prompt "Enter the Remote PowerShell endpoint for the Amazon FSx file system").Trim()
     $Alias = (Read-Host -Prompt "If using an alias instead of file server hostname, insert the alias in FQDN format e.g. files.domain.local (Press enter to skip)").Trim()
