@@ -1,6 +1,9 @@
 ## Migrate Windows File Servers to Amazon FSx for Windows File Server
 
 This repository contains a set of PowerShell scripts to assist in the migration of a Windows file server to Amazon FSx for Windows File Server.
+Please view blog post for more details:
+
+https://aws.amazon.com/blogs/storage/migration-to-amazon-fsx-for-windows-file-server-cost-optimization-strategies-and-automation/
 
 ## The migration process involves the following steps:
 
